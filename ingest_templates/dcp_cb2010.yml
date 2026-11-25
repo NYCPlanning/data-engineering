@@ -1,4 +1,5 @@
 id: dcp_cb2010
+version_schedule: geosupport_quarterly
 
 attributes:
   name: Census Blocks for the 2010 US Census (Clipped to shoreline)

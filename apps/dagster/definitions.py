@@ -1,27 +1,12 @@
-"""Dagster definitions for build and ingest workflows."""
+"""Single code location for every Dagster workflow (ingest + builds).
 
-import os
+Merges each package's own Definitions, so jobs, schedules, sensors and resources added there show
+up here too. workspace.yaml still loads ingest and builds as separate locations for local use; the
+runner (apps/docker/entrypoints/dagster-runner.sh) serves this one.
+"""
 
-from builds import build_assets, create_build_partition_asset
+from builds.definitions import defs as builds_defs
 from dagster import Definitions
-from ingest import ingest_assets
-from ingest.resources import LocalStorageResource
+from ingest.definitions import defs as ingest_defs
 
-# Combine all assets
-all_assets = [*build_assets, create_build_partition_asset, *ingest_assets]
-
-# Use DCPY_LIFECYCLE_DATA_DIR if set (our standard env var for lifecycle operations),
-# otherwise fall back to /tmp. This is separate from DAGSTER_HOME which is for
-# Dagster's own metadata storage.
-storage_base = os.environ.get("DCPY_LIFECYCLE_DATA_DIR", "/tmp/dagster-storage")
-
-# Define resources
-resources = {
-    "local_storage": LocalStorageResource(base_path=str(storage_base)),
-}
-
-# Create Definitions object
-defs = Definitions(
-    assets=all_assets,
-    resources=resources,
-)
+defs = Definitions.merge(ingest_defs, builds_defs)

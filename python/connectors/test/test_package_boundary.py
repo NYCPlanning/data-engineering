@@ -8,8 +8,8 @@ import pytest
     "being removed).",
 )
 def test_cannot_import_lifecycle():
-    """dcpy-lifecycle sits at the top of the dependency hierarchy (it depends on every
-    other dcpy-* package) - nothing below it should import from it. Only meaningful
+    """dcpy-lifecycle sits near the top of the dependency hierarchy (it depends on every
+    other dcpy-* package but dcpy-services) - nothing below it should import from it. Only meaningful
     when run against an isolated sync (uv sync --package dcpy-connectors), which is
     the only context where dcpy.lifecycle would otherwise be absent - see
     bash/run_isolated_tests.sh. dcpy-connectors is synced together with dcpy-lifecycle

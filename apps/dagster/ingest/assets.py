@@ -1,10 +1,16 @@
+import os
+import shutil
+from dataclasses import dataclass
+from pathlib import Path
 from typing import List, Optional
 
 from dagster import AssetExecutionContext, AssetKey, Config, MaterializeResult, asset
 from dcpy.lifecycle.ingest import get_template_directory, list_ingest_templates
-from dcpy.lifecycle.ingest.plan import read_definition_file
+from dcpy.lifecycle.ingest.models import DatasetDefinition
+from dcpy.lifecycle.ingest.plan import get_jinja_vars, read_definition_file
+from dcpy.lifecycle.ingest.version_schedules import VersionSchedule
 
-from .partitions import ingest_partition_def
+from .partitions import ingest_partitions_def
 from .resources import LocalStorageResource
 
 
@@ -72,20 +78,55 @@ def detect_circular_dependencies(
         detect_circular_dependencies(template_deps, dep, visited.copy())
 
 
-def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
+def template_takes_version(template_path: Path) -> bool:
+    """Whether the template has a {{ version }} placeholder that the run has to fill in."""
+    return "version" in get_jinja_vars(template_path.read_text())
+
+
+def _keep_staging() -> bool:
+    return os.environ.get("DCPY_KEEP_STAGING", "").strip().lower() in {
+        "1",
+        "true",
+        "yes",
+    }
+
+
+def _remove_staging_dir(path: Path, stop_at: Path) -> None:
+    """Delete a run's staging dir, then its parents (partition, template) while they're empty,
+    stopping at the storage base."""
+    shutil.rmtree(path, ignore_errors=True)
+    for parent in path.parents:
+        if parent == stop_at or stop_at not in parent.parents:
+            break
+        try:
+            parent.rmdir()
+        except OSError:
+            break  # not empty: another run's staging is in it
+
+
+def ingest_asset_key(template_id: str) -> AssetKey:
+    return AssetKey(f"ingest_{template_id}")
+
+
+def make_ingest_asset(
+    template_id: str,
+    depends_on: List[str] | None = None,
+    version_schedule: VersionSchedule | None = None,
+):
     """Create a Dagster asset for an ingest template
 
     Args:
         template_id: The template identifier
         depends_on: List of template IDs this template depends on
+        version_schedule: The template's shared version schedule, if it has one
     """
     # Convert template dependencies to Dagster asset keys
-    deps = [AssetKey(f"ingest_{dep}") for dep in (depends_on or [])]
+    deps = [ingest_asset_key(dep) for dep in (depends_on or [])]
 
     @asset(
         name=f"ingest_{template_id}",
         deps=deps,
-        partitions_def=ingest_partition_def,
+        partitions_def=ingest_partitions_def(template_id, version_schedule),
         group_name="ingest",
         tags={"template": template_id, "lifecycle_stage": "ingest"},
     )
@@ -97,7 +138,11 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
         from dcpy.lifecycle.ingest.run import ingest
 
         partition_key = context.partition_key
-        output_path = local_storage.get_path("ingest", template_id, partition_key)
+        # One staging dir per run: ingest's default is a single shared directory that each run
+        # wipes on start, so two runs on the runner at once would clobber each other.
+        output_path = local_storage.get_path(
+            "ingest", template_id, partition_key, context.run_id
+        )
 
         context.log.info(f"Running ingest for {template_id} version {partition_key}")
         context.log.info(
@@ -105,21 +150,47 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
             f"output_csv={config.output_csv}, overwrite_okay={config.overwrite_okay}"
         )
 
-        ingest(
-            dataset_id=template_id,
-            mode=config.mode,
-            datasets_filter=config.datasets_filter,
-            latest=config.latest,
-            push=config.push,
-            output_csv=config.output_csv,
-            definition_dir=get_template_directory(),
-            overwrite_okay=config.overwrite_okay,
+        # The partition key is the version for templates that are parameterized by one (e.g. an
+        # inbox file path). Others resolve their version from the source.
+        template_dir = get_template_directory()
+        version = (
+            partition_key
+            if template_takes_version(template_dir / f"{template_id}.yml")
+            else None
         )
+
+        # The archive in object storage is the result; the staging dir is scratch, so it goes
+        # when the run ends, pass or fail. Kept for a dry run (push: false, where it holds the
+        # only output) or when DCPY_KEEP_STAGING is set, for debugging.
+        keep_staging = not config.push or _keep_staging()
+        try:
+            datasets = ingest(
+                dataset_id=template_id,
+                version=version,
+                staging_dir=output_path,
+                mode=config.mode,
+                datasets_filter=config.datasets_filter,
+                latest=config.latest,
+                push=config.push,
+                output_csv=config.output_csv,
+                definition_dir=template_dir,
+                overwrite_okay=config.overwrite_okay,
+            )
+        finally:
+            if keep_staging:
+                context.log.info(f"Keeping staging dir {output_path}")
+            else:
+                _remove_staging_dir(output_path, stop_at=local_storage.get_path())
+                context.log.info(f"Removed staging dir {output_path}")
 
         return MaterializeResult(
             metadata={
-                "output_path": str(output_path),
+                # Only when the files are still there to look at.
+                **({"output_path": str(output_path)} if keep_staging else {}),
                 "version": partition_key,
+                # What was archived: without a {{ version }} placeholder, ingest resolves the
+                # version from the source, so it can differ from the partition key.
+                "archived_versions": sorted({ds.version for ds in datasets}),
                 "mode": config.mode,
                 "latest": config.latest,
                 "push": config.push,
@@ -129,29 +200,52 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
     return _ingest_asset
 
 
+@dataclass(frozen=True)
+class TemplateInfo:
+    id: str
+    depends_on: list[str]
+    version_schedule: VersionSchedule | None
+    # Ids the template archives under: its own, or each downstream dataset's for a data source
+    dataset_ids: tuple[str, ...]
+
+
+def read_template_info(template_path: Path) -> TemplateInfo:
+    # Version is unknown at load time (it's picked per run), so render {{ version }} with a
+    # dummy: only depends_on, version_schedule and the dataset ids are needed, and none of
+    # them are templated. A template with syntax errors raises here and blocks the deploy.
+    definition = read_definition_file(template_path, version="dummy_version")
+    template_id = template_path.stem
+    if definition.version_schedule and not template_takes_version(template_path):
+        raise ValueError(
+            f"Template '{template_id}' has version_schedule "
+            f"'{definition.version_schedule}' but no {{{{ version }}}} placeholder"
+        )
+    dataset_ids = (
+        (definition.id,)
+        if isinstance(definition, DatasetDefinition)
+        else tuple(d.id for d in definition.datasets)
+    )
+    return TemplateInfo(
+        id=template_id,
+        depends_on=definition.depends_on,
+        version_schedule=definition.version_schedule,
+        dataset_ids=dataset_ids,
+    )
+
+
 # Create ingest assets for all templates
 ingest_templates = list_ingest_templates()
 template_directory = get_template_directory()
 
-# Build dependency map for all templates
-template_deps: dict[str, list[str]] = {}
-all_template_names = {template.name for template in ingest_templates}
+templates: dict[str, TemplateInfo] = {
+    template.name: read_template_info(template_directory / f"{template.name}.yml")
+    for template in ingest_templates
+}
+template_deps = {t.id: t.depends_on for t in templates.values()}
+all_template_names = set(templates)
 
-for template in ingest_templates:
-    template_path = template_directory / f"{template.name}.yml"
-
-    # Read the template definition using Pydantic models
-    # For templates that use {{ version }}, provide a dummy value since:
-    # 1. Version is unknown at asset load time (determined at runtime)
-    # 2. depends_on field never uses Jinja2 templating
-    # 3. We only need depends_on, not the full validated model
-    # If the template has syntax errors, this will raise and block deployment
-    definition = read_definition_file(template_path, version="dummy_version")
-    depends_on = definition.depends_on
-    template_deps[template.name] = depends_on
-
-    # Validate dependencies exist
-    validate_dependencies(template.name, depends_on, all_template_names)
+for template_id, depends_on in template_deps.items():
+    validate_dependencies(template_id, depends_on, all_template_names)
 
 # Detect circular dependencies for all templates
 for template_id in template_deps:
@@ -159,6 +253,6 @@ for template_id in template_deps:
 
 # Create assets with dependencies
 ingest_assets = [
-    make_ingest_asset(template.name, template_deps[template.name])
-    for template in ingest_templates
+    make_ingest_asset(t.id, t.depends_on, t.version_schedule)
+    for t in templates.values()
 ]

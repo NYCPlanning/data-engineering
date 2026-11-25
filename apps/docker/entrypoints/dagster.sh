@@ -1,24 +1,20 @@
 #!/bin/bash
-# Dagster entrypoint: clone repo, install dcpy, start supervisord
-
+# Dagster webserver + daemon in one container.
+#
+# With DAGSTER_CODE_SERVER_HOST set, user code lives in a separate code server
+# (entrypoints/dagster-runner.sh) and this container loads none of it. Without it, the webserver
+# and daemon each spawn their own code servers from workspace.yaml and runs execute here.
 set -e
 
-echo "[$(date -Iseconds)] Dagster container starting..."
+source "$(dirname "$0")/dagster-common.sh"
 
-# Initial repo clone/update
-/app/docker/scripts/update-repo.sh
+if [ -n "${DAGSTER_CODE_SERVER_HOST}" ]; then
+    export DAGSTER_CODE_SERVER_PORT="${DAGSTER_CODE_SERVER_PORT:-4000}"
+    workspace=workspace.grpc.yaml
+    echo "Loading code from ${DAGSTER_CODE_SERVER_HOST}:${DAGSTER_CODE_SERVER_PORT}" >&2
+else
+    workspace=workspace.yaml
+fi
 
-# Install dcpy with all app dependencies
-echo "[$(date -Iseconds)] Installing dcpy[all-apps]..."
-cd /app/repos/data-engineering
-uv pip install --system -e ".[all-apps]"
-
-# Create supervisor log directory
-mkdir -p /var/log/supervisor
-
-# Set working directory for dagster to the cloned repo's dagster app
-cd /app/repos/data-engineering/apps/dagster
-
-# Start supervisord (will manage dagster-webserver, dagster-daemon, and reload-loop)
-echo "[$(date -Iseconds)] Starting supervisord..."
-exec supervisord -c /app/docker/supervisord/dagster.conf
+dagster-daemon run -w "${workspace}" &
+exec dagster-webserver -h 0.0.0.0 -p 3000 -w "${workspace}"

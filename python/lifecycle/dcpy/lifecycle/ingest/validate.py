@@ -136,9 +136,28 @@ def find_definition_file_validation_errors(
         definition = plan.resolve_definition(
             ds_id, version="version", definition_dir=definition_dir
         )
-        return find_definition_validation_errors(definition)
+        violations = find_definition_validation_errors(definition)
+        if schedule_error := find_version_schedule_error(
+            definition_dir / f"{ds_id}.yml"
+        ):
+            violations["version_schedule"] = schedule_error
+        return violations
     except (ValidationError, ValueError) as e:
         return {"malformatted yml": str(e)}
+
+
+def find_version_schedule_error(definition_path: Path) -> str | None:
+    """A template on a version schedule is run with the schedule's versions, so it has to take
+    one: without a {{ version }} placeholder the version would come from the source instead."""
+    template = plan.read_definition_file(definition_path, version="version")
+    if template.version_schedule and "version" not in plan.get_jinja_vars(
+        definition_path.read_text()
+    ):
+        return (
+            f"version_schedule '{template.version_schedule}' needs a {{{{ version }}}} "
+            "placeholder in the template"
+        )
+    return None
 
 
 def validate_definition(ds_id: str, definition_dir: Path) -> None:

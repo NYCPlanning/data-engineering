@@ -1,4 +1,5 @@
 id: dcp_councildistricts_wi
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC City Council Districts (Water Included)

@@ -1,41 +1,38 @@
-# Unified Dockerfile for all data-engineering apps
-# Built FROM nycplanning/build-geosupport:latest
-# Pushed to ACR as de-apps:latest
-# Different apps use different entrypoints (set at runtime)
+# Shared image for the data-engineering apps (qa, dagster, notebook-server), pushed to ACR as
+# de-apps:latest. The repo is baked in at /app/data-engineering with every app's dependencies
+# installed, so each app is just a startup script: apps/docker/entrypoints/<app>.sh.
+#
+# Build from the repo root:
+#   docker build -f apps/docker/Dockerfile -t de-apps .
+# What's copied in is allowlisted by Dockerfile.dockerignore (next to this file).
+
+# Resolve third-party requirements in a throwaway stage, so the install layer below is only
+# rebuilt when uv.lock actually changes - not on every code change.
+FROM nycplanning/build-geosupport:latest AS requirements
+WORKDIR /src
+COPY . .
+RUN uv export --frozen --no-dev --no-hashes --no-emit-workspace \
+        --package dcpy-app-qa \
+        --package dcpy-app-dagster \
+        --package dcpy-app-notebook-server \
+        -o /requirements.txt
+
 
 FROM nycplanning/build-geosupport:latest
 
-WORKDIR /app
+COPY --from=requirements /requirements.txt /tmp/requirements.txt
+RUN uv pip install --system -r /tmp/requirements.txt
 
-# Install git for cloning the repo
-RUN apt-get update && \
-    apt-get install -y git && \
-    rm -rf /var/lib/apt/lists/*
+WORKDIR /app/data-engineering
+COPY . .
 
-# Copy shared docker scripts and configs
-COPY docker/scripts /app/docker/scripts
-COPY docker/supervisord /app/docker/supervisord
-COPY docker/entrypoints /app/docker/entrypoints
+# Editable, so dcpy resolves repo-relative paths (product-metadata/, products/) from here.
+RUN uv pip install --system --no-deps $(for d in python/*/; do printf -- '-e %s ' "$d"; done) && \
+    chmod +x apps/docker/entrypoints/*.sh
 
-# Ensure scripts are executable
-RUN chmod +x /app/docker/scripts/*.sh /app/docker/entrypoints/*.sh
-
-# Set up environment variables with defaults
-# These can be overridden at runtime
-ENV REPO_URL=https://github.com/NYCPlanning/data-engineering.git
-ENV REPO_BRANCH=main
-ENV REPO_DIR=/app/repos/data-engineering
 ENV DAGSTER_HOME=/opt/dagster/dagster_home
+RUN mkdir -p ${DAGSTER_HOME}
 
-# Create necessary directories
-RUN mkdir -p ${DAGSTER_HOME} /var/log/supervisor
+EXPOSE 3000 4000 8501
 
-# Expose common ports (can be remapped in Azure Container Apps)
-EXPOSE 3000 8501 8080
-
-# Default entrypoint (override for different apps)
-# For dagster: /app/docker/entrypoints/dagster.sh
-# For qa: /app/docker/entrypoints/qa.sh (to be created)
-# For notebook: /app/docker/entrypoints/notebook.sh (to be created)
-ENTRYPOINT ["/bin/bash"]
-CMD ["-c", "echo 'Please specify an entrypoint for this container'"]
+CMD ["echo", "Specify an app entrypoint, e.g. apps/docker/entrypoints/qa.sh"]

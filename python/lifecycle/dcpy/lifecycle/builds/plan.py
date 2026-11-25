@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -24,15 +25,23 @@ from dcpy.lifecycle.builds.connector import (
     get_recipes_default_connector,
 )
 from dcpy.lifecycle.builds.models import (
+    InputDataset,
     InputDatasetDefaults,
     Recipe,
     RecipeInputsVersionStrategy,
+)
+from dcpy.lifecycle.builds.version_index import (
+    InputRequest,
+    ResolvedInput,
+    VersionIndex,
 )
 from dcpy.lifecycle.connector_registry import connectors
 from dcpy.utils import versions
 from dcpy.utils.logging import logger
 
 DEFAULT_RECIPE = "recipe.yml"
+# The source whose inputs get file type, name, archive date and url resolved at plan time.
+RECIPES_DATASETS_SOURCE = "edm.recipes.datasets"
 RECIPE_FILE_TYPE_PREFERENCE = [
     DatasetType.pg_dump,
     DatasetType.parquet,
@@ -175,6 +184,43 @@ def _merge_base_recipe_inputs(
     recipe.stage_config = {**base_recipe.stage_config, **recipe.stage_config}
 
 
+def _resolve_from_index(
+    version_index: VersionIndex | None, datasets: list[InputDataset]
+) -> dict[int, ResolvedInput]:
+    """Recipes inputs the index can answer for, keyed by id() of the input. Empty without an
+    index, or when it fails: then everything is read from the bucket."""
+    if version_index is None:
+        return {}
+    inputs = [
+        ds for ds in datasets if ds.source == RECIPES_DATASETS_SOURCE and ds.version
+    ]
+    if not inputs:
+        return {}
+    started = time.monotonic()
+    try:
+        results = version_index.resolve(
+            RECIPES_DATASETS_SOURCE,
+            [
+                InputRequest(key=ds.id, version=ds.version)
+                for ds in inputs
+                if ds.version
+            ],
+            RECIPE_FILE_TYPE_PREFERENCE,
+        )
+    except Exception as e:
+        logger.warning(
+            f"Version index unavailable, resolving inputs from the bucket: {e}"
+        )
+        return {}
+    assert len(results) == len(inputs), "The version index must answer every input"
+    resolved = {id(ds): r for ds, r in zip(inputs, results, strict=True) if r}
+    logger.info(
+        f"Resolved {len(resolved)} of {len(inputs)} input(s) from the version index in "
+        f"{time.monotonic() - started:.2f}s, the rest from the bucket"
+    )
+    return resolved
+
+
 def plan_recipe(
     recipe_path: Path,
     version: str | None = None,
@@ -182,6 +228,7 @@ def plan_recipe(
     build_name: str | None = None,
     branch: str | None = None,
     env_vars: dict[str, str] | None = None,
+    version_index: VersionIndex | None = None,
 ) -> Recipe:
     """Plan recipe versions and file types for a product.
 
@@ -202,6 +249,8 @@ def plan_recipe(
                If provided, sets recipe.branch.
         env_vars: Optional dict of environment variables to add to recipe.env
                  (e.g., BUILD_ENGINE_SCHEMA, BUILD_ENGINE_DB).
+        version_index: Optional index of archived versions to resolve recipes inputs from
+                 before reading the bucket (see dcpy.lifecycle.builds.version_index).
     """
     recipe: Recipe = recipe_from_yaml(recipe_path, vars=vars, version=version)
 
@@ -272,10 +321,9 @@ def plan_recipe(
             PublishKey(recipe.product, "latest")
         ).to_dict()["version"]
 
+    # The version each input asks for: pinned, from a var, the last release's, or latest.
     for ds in recipe.inputs.datasets:
         assert ds.source, f"Cannot import a dataset without a resolved source: {ds}"
-        connector = connectors[ds.source]
-
         if ds.version is None:
             if ds.version_env_var is not None:
                 # Use provided vars if available, otherwise fall back to environment
@@ -300,12 +348,27 @@ def plan_recipe(
             else:
                 ds.version = "latest"
 
+    indexed = _resolve_from_index(version_index, recipe.inputs.datasets)
+
+    for ds in recipe.inputs.datasets:
+        assert ds.source and ds.version
+        connector = connectors[ds.source]
+        resolved = indexed.get(id(ds))
+        if resolved:
+            ds.version = resolved.version
+            ds.file_type = ds.file_type or resolved.file_type
+            ds.name = resolved.name
+            ds.archive_date = resolved.archive_date
+            ds.url = resolved.url
+            continue
+
         if ds.version == "latest":
             logger.info(f"Querying versions for {connector.conn_type}")
             ds.version = connector.get_latest_version(ds.id)
+        assert ds.version, f"No version resolved for {ds.id}"
 
         # Determine edm recipes dataset details
-        if ds.source == "edm.recipes.datasets":
+        if ds.source == RECIPES_DATASETS_SOURCE:
             # Determine the file type
             # Hack for now, to accomodate existing file types
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
@@ -549,10 +612,16 @@ def plan(
     branch: str | None = None,
     env_vars: dict[str, str] | None = None,
     output_path: Path | None = None,
+    version_index: VersionIndex | None = None,
 ) -> Path:
     logger.info(f"Planning recipe from {recipe_file}")
     recipe = plan_recipe(
-        recipe_file, version, build_name=build_name, branch=branch, env_vars=env_vars
+        recipe_file,
+        version,
+        build_name=build_name,
+        branch=branch,
+        env_vars=env_vars,
+        version_index=version_index,
     )
     lock_file = generate_lock_file(recipe_file, recipe, output_path=output_path)
     return lock_file

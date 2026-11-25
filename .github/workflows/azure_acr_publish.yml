@@ -1,5 +1,22 @@
 name: Azure ACR - Build and Publish App Images
 on:
+  # de-apps bakes in the repo, so rebuild it whenever anything it copies in changes on main.
+  # Keep these paths in sync with apps/docker/Dockerfile.dockerignore.
+  push:
+    branches:
+      - main
+    paths:
+      - pyproject.toml
+      - uv.lock
+      - python/**
+      - apps/**
+      - product-metadata/**
+      - products/**
+      - ingest_templates/**
+      - '!**/test/**'
+      - '!**/tests/**'
+      - '!**/*.md'
+      - '!apps/nginx_azure/**'
   workflow_dispatch:
     inputs:
       de-apps:
@@ -12,11 +29,21 @@ on:
         type: boolean
         required: true
         default: false
+      mirror-images:
+        description: "Copy pinned third-party images (versitygw) into ACR"
+        type: boolean
+        required: true
+        default: false
+
+# Queue rather than cancel, so back-to-back merges push :latest in order.
+concurrency:
+  group: azure-acr-publish
+  cancel-in-progress: false
 
 jobs:
   de-apps:
     runs-on: ubuntu-22.04
-    if: inputs.de-apps
+    if: inputs.de-apps || github.event_name == 'push'
     defaults:
       run:
         shell: bash
@@ -46,9 +73,8 @@ jobs:
 
       - name: Build de-apps image
         run: |
-          cd apps
-          docker build \
-            -f docker/Dockerfile \
+          docker build --load \
+            -f apps/docker/Dockerfile \
             -t ${{ env.AZURE_ACR_LOGIN_SERVER }}/de-apps:latest \
             .
 
@@ -94,7 +120,7 @@ jobs:
       - name: Build nginx-azure image
         run: |
           cd apps/nginx_azure
-          docker build \
+          docker build --load \
             -f Dockerfile \
             -t ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest \
             .
@@ -107,3 +133,45 @@ jobs:
         run: |
           echo "Image pushed: ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest"
           echo "Image size: $(docker images ${{ env.AZURE_ACR_LOGIN_SERVER }}/nginx-azure:latest --format '{{.Size}}')"
+
+  # Container Apps in the VNet pull from ACR, not Docker Hub. Images are pinned: bump the tag here
+  # to upgrade, then deploy the new tag.
+  mirror-images:
+    runs-on: ubuntu-22.04
+    if: inputs.mirror-images
+    strategy:
+      matrix:
+        image:
+          - source: docker.io/versity/versitygw:v1.10.0
+            target: versitygw:v1.10.0
+    defaults:
+      run:
+        shell: bash
+    steps:
+      - name: Load Secrets
+        uses: 1password/load-secrets-action@v5
+        with:
+          export-env: true
+        env:
+          OP_SERVICE_ACCOUNT_TOKEN: ${{ secrets.OP_SERVICE_ACCOUNT_TOKEN }}
+          AZURE_ACR_USERNAME: "op://Data Engineering/de_az_acr/username"
+          AZURE_ACR_PASSWORD: "op://Data Engineering/de_az_acr/password"
+          AZURE_ACR_LOGIN_SERVER: "op://Data Engineering/de_az_acr/login_server"
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v4
+
+      - name: Log in to Azure Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ${{ env.AZURE_ACR_LOGIN_SERVER }}
+          username: ${{ env.AZURE_ACR_USERNAME }}
+          password: ${{ env.AZURE_ACR_PASSWORD }}
+
+      # Registry-to-registry copy of the full manifest list; nothing is pulled locally.
+      - name: Copy ${{ matrix.image.source }}
+        run: |
+          docker buildx imagetools create \
+            --tag ${{ env.AZURE_ACR_LOGIN_SERVER }}/${{ matrix.image.target }} \
+            ${{ matrix.image.source }}
+          docker buildx imagetools inspect ${{ env.AZURE_ACR_LOGIN_SERVER }}/${{ matrix.image.target }}

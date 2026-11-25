@@ -1,4 +1,5 @@
 id: dcp_nta2020
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC 2020 NTAs

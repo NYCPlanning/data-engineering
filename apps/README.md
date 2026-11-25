@@ -56,6 +56,10 @@ Access at:
 - http://localhost:8080/dag (Dagster)
 - Login: `NGINX_AUTH_USER` / `NGINX_AUTH_PASSWORD` from your `.env`
 
+Locally, Dagster stores runs, event logs, and schedules in the `dagster-postgres` service
+(`docker-compose.local.yml`, local-only `dagster`/`dagster` credentials), via `DAGSTER_PG_URL` and
+`dagster/dagster.yaml`. The droplet setup doesn't set either and stays on SQLite.
+
 ## Production Deployment
 
 All production commands use the 1Password CLI to inject secrets from `env.1pw`.

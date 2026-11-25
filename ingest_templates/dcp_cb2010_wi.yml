@@ -1,4 +1,5 @@
 id: dcp_cb2010_wi
+version_schedule: geosupport_quarterly
 
 attributes:
   name: Census Blocks for the 2010 US Census (**Water included**)

@@ -117,7 +117,6 @@ select = [
 [tool.ruff.lint.per-file-ignores]
 "__init__.py" = ["F401", "E402"]
 "conftest.py" = ["E402"]
-"setup_dev_bucket.py" = ["E402"]
 "apps/qa/src/pages/source_data/*.py" = ["I001"]
 
 [tool.ruff.lint.isort]
@@ -151,6 +150,7 @@ mypy_path = [
     "python/geosupport",
     "python/lifecycle",
     "python/product-metadata",
+    "python/services",
 ]
 
 [[tool.mypy.overrides]]

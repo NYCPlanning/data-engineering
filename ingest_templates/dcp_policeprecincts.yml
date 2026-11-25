@@ -1,4 +1,5 @@
 id: dcp_policeprecincts
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC Police Precincts

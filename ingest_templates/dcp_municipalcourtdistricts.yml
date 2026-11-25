@@ -1,4 +1,5 @@
 id: dcp_municipalcourtdistricts
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC Municipal Court Districts (Clipped to shoreline)

@@ -1,4 +1,5 @@
 id: dcp_pad
+version_schedule: geosupport_quarterly
 
 attributes:
   name: Property Address Directory

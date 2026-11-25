@@ -424,8 +424,7 @@ A release has two inputs, and both have to be in place before you build:
    The tag matters because the recipe doesn't pin the GDB: it loads whatever
    `edm-recipes/raw/dcp_cscl_gdb/latest/` points to. Raw versions are named by ingest
    timestamp (the latest so far is `2026-09-17T14:26:25...`). The per-layer datasets
-   (`edm-recipes/datasets/dcp_cscl_centerline/<v>/` etc.) carry the clean version. The QA
-   app's **CSCL Builds** page lists `<v>` once those exist.
+   (`edm-recipes/datasets/dcp_cscl_centerline/<v>/` etc.) carry the clean version.
 3. **Product metadata**: bump `current_version_lion` in
    [`product-metadata/snippets/strings.yml`](../../product-metadata/snippets/strings.yml)
    (it's `26c` today). The lion datasets' `current_version` and their BYTES links and
@@ -501,8 +500,7 @@ Nothing ties the LDF inputs to the version, so update these by hand too (see
 
 Run the **"🏗️ Build a Dataset"** workflow
 ([`build.yml`](../../.github/workflows/build.yml)) on your branch with `dataset_name: cscl`.
-It calls [`cscl_build.yml`](../../.github/workflows/cscl_build.yml). You can also use the
-QA app's **CSCL Builds** page, which dispatches the same workflow with a generated name.
+It calls [`cscl_build.yml`](../../.github/workflows/cscl_build.yml).
 
 ```bash
 gh workflow run build.yml --ref <branch> -f dataset_name=cscl \
@@ -512,8 +510,7 @@ gh workflow run build.yml --ref <branch> -f dataset_name=cscl \
 - **`build_name`** becomes the upload folder `db-cscl/build/<build_name>/`. It defaults to
   the branch name, and `db-cscl/build/main/` is the baseline every branch build's summary is
   compared against, so give a release build its own name. Start it with a letter and use
-  only letters, digits and `_`. The CSCL Builds page uses
-  `cscl_<v>_<note-slug>_<YYYYMMDDTHHMM>`.
+  only letters, digits and `_`, e.g. `cscl_<v>_<note-slug>_<YYYYMMDDTHHMM>`.
 - **`build_note`**: plain words only. A `#`, `:` or parentheses breaks the Health Check job's
   input parsing, and the run fails within seconds.
 
@@ -627,7 +624,6 @@ What exists today:
   promoted from builds by hand. `db-cscl` isn't an option in the **Promote a Dataset to
   Draft** workflow (`promote_to_draft.yml`), so it's done with the CLI:
   `python3 -m dcpy.connectors.edm.publishing promote_to_draft --product db-cscl --build <build_name> --draft-summary <note> --acl "$(python3 -m dcpy lifecycle builds build acl db-cscl)"`.
-  The CSCL Builds page says a successful build is promoted to draft automatically, but
   `cscl_build.yml` has no promote step: it only uploads to `build/`.
 - **`db-cscl/draft_for_gss/26C/`** holds two hand-made zips (`26C_0923_flatfiles.zip`,
   `26C_0923_full.zip`, 2026-09-23). They look like a hand-off, but nothing in the repo
@@ -647,7 +643,7 @@ Open questions (not answered by anything in the repo):
 - What is `draft_for_gss` (who's GSS, and what do they expect in those two zips)? Is it a
   per-release step?
 - Should `db-cscl` be added to `promote_to_draft.yml` (and `publish.yml`), or should
-  `cscl_build.yml` promote to draft itself, as the CSCL Builds page assumes?
+  `cscl_build.yml` promote to draft itself?
 - `dcp_cscl_temp_mock_previous_release`: how were the `26B` CSVs
   (`citywide_lion_dat.csv`, `previous_ldf_header.csv`) made, and who makes `26C`'s for 26d?
 - `seeds/config.csv`'s `thined_version`/`thined_file_tag`: what's the update rule per

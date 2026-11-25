@@ -10,21 +10,56 @@ services:
   dagster:
     ports:
       - "3000:3000"
+    environment:
+      - DAGSTER_PG_URL=postgresql://dagster:dagster@dagster-postgres:5432/dagster
     volumes:
       # Mount local repos instead of using shared volume (mount parent to get dcpy)
       - ${DATA_ENGINEERING_PATH:-..}:/app/repos/data-engineering
       - ${DATA_ENGINEERING_PATH:-..}/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
+      # Instance config pointing storage at DAGSTER_PG_URL (local only; the droplet stays on SQLite)
+      - ${DATA_ENGINEERING_PATH:-..}/apps/dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
+    depends_on:
+      dagster-postgres:
+        condition: service_healthy
 
   dagster-daemon:
+    environment:
+      - DAGSTER_PG_URL=postgresql://dagster:dagster@dagster-postgres:5432/dagster
     volumes:
       # Mount local repos for daemon as well
       - ${DATA_ENGINEERING_PATH:-..}:/app/repos/data-engineering
       - ${DATA_ENGINEERING_PATH:-..}/apps/dagster:/app/dagster
       - dagster-storage:/opt/dagster/dagster_home
+      - ${DATA_ENGINEERING_PATH:-..}/apps/dagster/dagster.yaml:/opt/dagster/dagster_home/dagster.yaml:ro
+    depends_on:
+      dagster-postgres:
+        condition: service_healthy
+
+  # Dagster instance storage (runs, event logs, schedules). Local-only credentials.
+  dagster-postgres:
+    image: postgres:18-alpine
+    environment:
+      - POSTGRES_USER=dagster
+      - POSTGRES_PASSWORD=dagster
+      - POSTGRES_DB=dagster
+    volumes:
+      - dagster-postgres-data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dagster -d dagster"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+    networks:
+      - app-network
 
   nginx:
     ports:
       # Use standard ports for local dev
       - "8080:80"
       - "8443:443"
+
+volumes:
+  dagster-postgres-data:
+    driver: local

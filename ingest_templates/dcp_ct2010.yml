@@ -1,4 +1,5 @@
 id: dcp_ct2010
+version_schedule: geosupport_quarterly
 
 attributes:
   name: Census Tracts for the 2010 US Census (Clipped to shoreline)

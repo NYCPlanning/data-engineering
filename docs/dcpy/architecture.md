@@ -7,7 +7,7 @@ dependency direction between dcpy's packages and how it's enforced.
 > dcpy is split into separate installable packages under `python/*/` (`dcpy-utils`,
 > `dcpy-connectors`, …), joined into one [uv workspace](../development.md) and merged into a single
 > `dcpy` namespace package at import time. The package-level layering below (utils/geosupport →
-> everything else → lifecycle) is enforced structurally — each package only declares the dcpy
+> everything else → lifecycle → services) is enforced structurally — each package only declares the dcpy
 > packages it actually depends on — not by a separate static-analysis config. See
 > [Enforcement](#enforcement) for how that's checked. The finer-grained layers within
 > `dcpy-lifecycle` itself (`cli`, `scripts`, `stages`, `lifecycle_base`) remain intended-only
@@ -21,6 +21,7 @@ top-to-bottom as "depends on what's below":
 
 ```mermaid
 flowchart TD
+    services["dcpy-services — catalog"]
     lifecycle["dcpy-lifecycle — ingest · builds · package · distribute · validate · scripts · cli"]
     connectors["dcpy-connectors"]
     geospatial["dcpy-geospatial"]
@@ -29,6 +30,7 @@ flowchart TD
     geosupport["dcpy-geosupport"]
     utils["dcpy-utils (cross-cutting, importable anywhere)"]
 
+    services --> lifecycle
     lifecycle --> connectors --> product_metadata
     lifecycle --> geospatial --> product_metadata
     lifecycle --> data
@@ -38,6 +40,7 @@ flowchart TD
     geospatial -.-> utils
     data -.-> utils
     lifecycle -.-> utils
+    services -.-> utils
 ```
 
 Each edge above is a real `dependencies` entry in the downstream package's `pyproject.toml` — see
@@ -48,7 +51,8 @@ declares a dependency on any other dcpy package.
 
 | Package | Role |
 |---|---|
-| **`dcpy-lifecycle`** | Top of the hierarchy — the lifecycle stages (`ingest`, `builds`, `package`, `distribute`, `validate`), their shared base (`config`, `data_loader`, `product_metadata`, `connector_registry`), cross-stage `scripts`, `migrations`, and the CLI entrypoints (`dcpy.__main__`, `lifecycle._cli`, `lifecycle._connectors_cli`). May depend on every other package. |
+| **`dcpy-services`** | Top of the hierarchy — live services on top of lifecycle: the version catalog (`dcpy.services.catalog`, Postgres via `psycopg2`, its migrations as package data, CLI `python -m dcpy.services`). Depends on `dcpy-lifecycle`, `dcpy-connectors`, `dcpy-utils`; nothing below imports it. Lifecycle reaches it only through seams it owns: small protocols callers fill in (`builds.version_index.VersionIndex`), and events (`dcpy.lifecycle.events.emit`) that installed packages handle through the `dcpy.lifecycle.event_handlers` entry point group. |
+| **`dcpy-lifecycle`** | The lifecycle stages (`ingest`, `builds`, `package`, `distribute`, `validate`), their shared base (`config`, `data_loader`, `product_metadata`, `connector_registry`), cross-stage `scripts`, and the CLI entrypoints (`dcpy.__main__`, `lifecycle._cli`, `lifecycle._connectors_cli`). May depend on every package except `dcpy-services`. |
 | **`dcpy-connectors`** | Atomic get/push to external systems (`registry`, `s3`, `web`, `socrata`, `esri`, `sftp`, …) plus the DCP-specific `connectors.edm` (`edm.recipes`, `edm.publishing`) that composes them. Depends on `dcpy-product-metadata`, `dcpy-utils`. |
 | **`dcpy-geospatial`** | Geospatial format conversion/comparison helpers. Depends on `dcpy-product-metadata`, `dcpy-utils`. |
 | **`dcpy-data`** | Dataset comparison and data helpers (e.g. `dcpy.data.compare`). Depends on `dcpy-utils`. |

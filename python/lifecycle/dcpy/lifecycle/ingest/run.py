@@ -2,7 +2,7 @@ import shutil
 from pathlib import Path
 
 from dcpy.configuration import INGEST_DEF_DIR
-from dcpy.lifecycle import config
+from dcpy.lifecycle import config, events
 from dcpy.lifecycle.ingest.connectors import (
     get_processed_datastore_connector,
     get_raw_datastore_connector,
@@ -219,6 +219,7 @@ def archive_transformed_datasets(
             for dataset_folder in dataset_folders
         ]
     datastore = get_processed_datastore_connector()
+    archived: list[events.ArchivedVersion] = []
     for dataset in datasets:
         dataset_folder = staging_dir / dataset.id
         version_exists = datastore.version_exists(dataset.id, dataset.version)
@@ -239,6 +240,7 @@ def archive_transformed_datasets(
                 overwrite=overwrite_okay,
                 latest=latest,
             )
+            archived.append(events.ArchivedVersion(dataset.id, dataset.version))
         elif latest:
             # --latest is its own request: point latest at this archive even when the
             # versioned copy is already there and doesn't need rewriting.
@@ -251,8 +253,18 @@ def archive_transformed_datasets(
                 config_path=dataset_folder / INGESTED_DATASET_FILENAME,
                 acl=dataset.source.acl,
             )
+            archived.append(events.ArchivedVersion(dataset.id, dataset.version))
         else:
             logger.info("Skipping archival")
+
+    if archived:
+        events.emit(
+            events.DatasetsArchived(
+                store=config.connector_name("ingest", "default_datasets_connector"),
+                datasets=tuple(archived),
+                latest=latest,
+            )
+        )
 
 
 def ingest(

@@ -1,0 +1,208 @@
+# Local copy of the Azure Dagster deployment: de-dagster (webserver + daemon) loads code over gRPC
+# from de-dagster-runner, runs execute on the runner, and S3 traffic goes through de-blob-gateway
+# (versitygw, Azure backend) to Azurite. See README.md next to this file.
+#
+#   apps/azure-local/build-image.sh            # de-apps:local, only after a dependency change
+#   docker compose -f apps/azure-local/docker-compose.yml up -d
+#   docker compose -f apps/azure-local/docker-compose.yml down   # add -v to drop data
+
+name: de-azure-local
+
+# Both Dagster services run the de-apps image with the local repo mounted over the copy baked into
+# it. The editable dcpy installs point at /app/data-engineering, so code changes need a restart,
+# not a rebuild.
+x-de-apps: &de-apps
+  image: de-apps:local
+  platform: linux/amd64
+  init: true
+  volumes:
+    - ../..:/app/data-engineering
+
+x-dagster-pg: &dagster-pg
+  DAGSTER_PG_URL: postgresql://dagster:dagster@postgres:5432/dagster
+
+# What the runner and bucket-init use to reach the gateway. Never a real endpoint.
+x-s3-env: &s3-env
+  AWS_S3_ENDPOINT: http://de-blob-gateway:7070
+  AWS_ACCESS_KEY_ID: local
+  AWS_SECRET_ACCESS_KEY: local-secret
+  AWS_DEFAULT_REGION: us-east-1
+  # Belt and braces: nothing in the stack may reach DigitalOcean.
+  DCPY_S3_ENDPOINT_DENYLIST: nyc3.digitaloceanspaces.com
+
+services:
+  postgres:
+    image: postgres:18.7-alpine
+    environment:
+      POSTGRES_USER: dagster
+      POSTGRES_PASSWORD: dagster
+      POSTGRES_DB: dagster
+    volumes:
+      - pg-data:/var/lib/postgresql
+      # de_apps role and database, at first init; db-init covers volumes made before this
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
+    ports:
+      - "127.0.0.1:15432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U dagster -d dagster"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # Creates the de_apps role and database (the version catalog's home) if they're missing, as the
+  # superuser. The same script runs at first init; this covers volumes initialized before it.
+  db-init:
+    image: postgres:18.7-alpine
+    environment:
+      PGPASSWORD: dagster
+    command: ["psql", "-h", "postgres", "-U", "dagster", "-d", "postgres", "-v", "ON_ERROR_STOP=1",
+              "-f", "/init/01-de-apps.sql"]
+    volumes:
+      - ./postgres-init:/init:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  # Self-signed cert for Azurite. versitygw signs copy-source SAS URLs as https-only, so over plain
+  # HTTP its CopyObject quietly falls back to streaming the object through the gateway.
+  certs:
+    image: alpine/openssl:3.5.9
+    entrypoint: ["sh", "-c"]
+    command:
+      - |
+        set -e
+        [ -f /certs/azurite.pem ] && exit 0
+        openssl req -x509 -newkey rsa:2048 -nodes -days 825 -subj /CN=azurite \
+          -addext subjectAltName=DNS:azurite,DNS:localhost,IP:127.0.0.1 \
+          -keyout /certs/azurite-key.pem -out /certs/azurite.pem
+        chmod 644 /certs/*
+    volumes:
+      - certs:/certs
+
+  # Blob emulator, standing in for the (flat, non-HNS) storage account. devstoreaccount1 and its
+  # key are Azurite's public well-known dev credentials.
+  azurite:
+    image: mcr.microsoft.com/azure-storage/azurite:3.37.0
+    command: >
+      azurite-blob --blobHost 0.0.0.0 --blobPort 10000 --location /data
+      --cert /certs/azurite.pem --key /certs/azurite-key.pem
+      --skipApiVersionCheck --loose
+    environment:
+      # Azurite fetches copy sources from its own https endpoint.
+      NODE_EXTRA_CA_CERTS: /certs/azurite.pem
+    volumes:
+      - azurite-data:/data
+      - certs:/certs:ro
+    ports:
+      - "127.0.0.1:10000:10000"
+    healthcheck:
+      test: ["CMD-SHELL", "nc -z 127.0.0.1 10000"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      certs:
+        condition: service_completed_successfully
+
+  # The S3 gateway, same image and env as the de-blob-gateway app on Azure.
+  de-blob-gateway:
+    image: versity/versitygw:v1.10.0
+    platform: linux/amd64
+    environment:
+      VGW_BACKEND: azure
+      AZ_ACCOUNT_NAME: devstoreaccount1
+      AZ_ACCESS_KEY: Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==
+      AZ_ENDPOINT: https://azurite:10000/devstoreaccount1
+      ROOT_ACCESS_KEY_ID: local
+      ROOT_SECRET_ACCESS_KEY: local-secret
+      VGW_HEALTH: /health
+      # Azurite lags the SDK's SAS version (versitygw's own Azurite CI pins this).
+      AZ_COPY_SAS_VERSION: "2025-11-05"
+      # Go reads trusted roots from here; the gateway only talks to Azurite.
+      SSL_CERT_FILE: /certs/azurite.pem
+    volumes:
+      - certs:/certs:ro
+    ports:
+      # 7070 on the host is often taken by a standalone gateway; this one is 17070.
+      - "127.0.0.1:17070:7070"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://127.0.0.1:7070/health"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+    depends_on:
+      azurite:
+        condition: service_healthy
+
+  # Creates the buckets (Azure containers) ingest and builds expect. As on Azure, there's no
+  # edm-private: PRIVATE_BUCKET and INBOX_ROOT_FOLDER on the runner point everything at edm-recipes.
+  bucket-init:
+    <<: *de-apps
+    environment: *s3-env
+    command:
+      - python
+      - -c
+      - |
+        from dcpy.utils import s3
+        client = s3.client()
+        existing = s3.list_buckets()
+        for bucket in ["edm-recipes", "edm-publishing"]:
+            if bucket not in existing:
+                client.create_bucket(Bucket=bucket)
+            print("bucket", bucket, "ready")
+    depends_on:
+      de-blob-gateway:
+        condition: service_healthy
+
+  de-dagster-runner:
+    <<: *de-apps
+    command: ["/app/data-engineering/apps/docker/entrypoints/dagster-runner.sh"]
+    environment:
+      <<: [*dagster-pg, *s3-env]
+      PUBLISHING_BUCKET: edm-publishing
+      # As on Azure: ingest's datasets/ and raw/ under ingest/, and no separate private bucket,
+      # so edm.private lands in edm-recipes/ingest/datasets/ too.
+      RECIPES_BUCKET_ROOT_FOLDER: ingest
+      PRIVATE_BUCKET: edm-recipes
+      # Templates' `bucket: edm-private` sources read edm-recipes/inbox/<key> instead.
+      INBOX_ROOT_FOLDER: inbox
+      # Keep run scratch out of the mounted repo (Azure uses the default, inside the image).
+      DCPY_LIFECYCLE_DATA_DIR: /tmp/dcpy-lifecycle
+      # The version catalog, in our own database, not Dagster's (see postgres-init/).
+      DCPY_CATALOG_PG_URL: postgresql://de_apps:de_apps@postgres:5432/de_apps
+    healthcheck:
+      test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
+      interval: 5s
+      timeout: 10s
+      start_period: 120s
+      retries: 60
+    depends_on:
+      postgres:
+        condition: service_healthy
+      bucket-init:
+        condition: service_completed_successfully
+      db-init:
+        condition: service_completed_successfully
+
+  de-dagster:
+    <<: *de-apps
+    command: ["/app/data-engineering/apps/docker/entrypoints/dagster.sh"]
+    environment:
+      <<: *dagster-pg
+      DAGSTER_CODE_SERVER_HOST: de-dagster-runner
+    ports:
+      - "127.0.0.1:3000:3000"
+    healthcheck:
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://127.0.0.1:3000/server_info')"]
+      interval: 5s
+      timeout: 5s
+      start_period: 60s
+      retries: 60
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  pg-data:
+  azurite-data:
+  certs:

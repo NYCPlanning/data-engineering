@@ -5,15 +5,15 @@ from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING, Any, Literal, cast, get_args
+from urllib.parse import urlparse
 
 import boto3
-import pytz
 import typer
 from botocore.client import Config
 from botocore.exceptions import ClientError
 from botocore.response import StreamingBody
 from pyarrow import fs
-from pydantic import BaseModel
+from pydantic import BaseModel, field_validator
 from rich.progress import (
     BarColumn,
     Progress,
@@ -22,7 +22,7 @@ from rich.progress import (
     TimeRemainingColumn,
 )
 
-from dcpy.utils import git
+from dcpy.utils import s3_metadata
 from dcpy.utils.logging import logger
 
 if TYPE_CHECKING:
@@ -42,24 +42,25 @@ ACL = Literal[
 MAX_FILE_COUNT = 150
 
 
-class Metadata(BaseModel):
+class Metadata(BaseModel, arbitrary_types_allowed=True):
     last_modified: datetime
     content_length: int
     content_type: str
-    custom: dict[str, Any]
+    # Lookups ignore case and "-" vs "_": see dcpy.utils.s3_metadata
+    custom: s3_metadata.ObjectMetadata
+
+    @field_validator("custom", mode="before")
+    @classmethod
+    def _read_custom(cls, value: Any) -> s3_metadata.ObjectMetadata:
+        return s3_metadata.for_read(value)
 
 
 def generate_metadata() -> dict[str, str]:
-    metadata = {
-        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
-    }
-    try:
-        metadata["commit"] = git.commit_hash()
-    except Exception:
-        pass
-    if os.environ.get("CI"):
-        metadata["run-url"] = git.action_url()
-    return metadata
+    return s3_metadata.standard()
+
+
+def _with_standard_metadata(metadata: dict[str, Any] | None) -> dict[str, str]:
+    return {**s3_metadata.for_write(metadata), **generate_metadata()}
 
 
 def string_as_acl(s: str) -> ACL:
@@ -90,18 +91,89 @@ def _progress():
     )
 
 
-def client() -> S3Client:
-    """Returns a client for S3."""
-    aws_s3_endpoint = os.environ.get("AWS_S3_ENDPOINT")
-    aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"]
-    aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"]
-    config = Config(read_timeout=120)
+ENDPOINT_ENV_VAR = "AWS_S3_ENDPOINT"
+ENDPOINT_DENYLIST_ENV_VAR = "DCPY_S3_ENDPOINT_DENYLIST"
+
+
+class S3ConfigError(RuntimeError):
+    """S3 isn't configured, or is configured to an endpoint this process may not use."""
+
+
+def endpoint_host(endpoint: str) -> str:
+    """Lowercased hostname of an endpoint URL. A bare host (as GDAL takes it) is allowed."""
+    return (
+        urlparse(endpoint if "://" in endpoint else f"https://{endpoint}").hostname
+        or ""
+    ).lower()
+
+
+def _denylisted(host: str) -> str | None:
+    """The denylist entry matching `host` (itself or a parent domain), if any."""
+    entries = os.environ.get(ENDPOINT_DENYLIST_ENV_VAR, "").split(",")
+    for entry in (e.strip().lower().rstrip(".") for e in entries):
+        if entry and (host == entry or host.endswith(f".{entry}")):
+            return entry
+    return None
+
+
+def resolve_endpoint(endpoint: str | None = None) -> str:
+    """The one place an S3 endpoint is decided, for every client (boto3, cloudpathlib, DuckDB,
+    pyarrow): `endpoint` if given, else AWS_S3_ENDPOINT, read at call time.
+
+    There's no default: a process without an endpoint fails here rather than quietly reaching
+    production. Either way, a host on DCPY_S3_ENDPOINT_DENYLIST (comma-separated hostnames,
+    subdomains included) is refused.
+    """
+    resolved = endpoint or os.environ.get(ENDPOINT_ENV_VAR)
+    if not resolved:
+        raise S3ConfigError(
+            f"{ENDPOINT_ENV_VAR} is not set. Set it to the S3 endpoint URL, "
+            "e.g. https://nyc3.digitaloceanspaces.com."
+        )
+    host = endpoint_host(resolved)
+    if entry := _denylisted(host):
+        raise S3ConfigError(
+            f"S3 endpoint {resolved} is denied by {ENDPOINT_DENYLIST_ENV_VAR} ({entry})."
+        )
+    return resolved
+
+
+def resolve_credentials(
+    access_key_id: str | None = None, secret_access_key: str | None = None
+) -> tuple[str, str]:
+    """Explicit keys if given, else AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY."""
+    key_id = access_key_id or os.environ.get("AWS_ACCESS_KEY_ID")
+    secret = secret_access_key or os.environ.get("AWS_SECRET_ACCESS_KEY")
+    if not (key_id and secret):
+        raise S3ConfigError(
+            "S3 credentials are not set: AWS_ACCESS_KEY_ID and AWS_SECRET_ACCESS_KEY."
+        )
+    return key_id, secret
+
+
+def client(
+    endpoint: str | None = None,
+    access_key_id: str | None = None,
+    secret_access_key: str | None = None,
+    verify: bool | str | None = None,
+) -> S3Client:
+    """Returns a client for S3. Arguments left out come from the AWS_* environment.
+
+    `verify` is boto3's: a CA bundle path for an endpoint whose certificate isn't from a
+    public CA, or None for the default trust store (or AWS_CA_BUNDLE)."""
+    endpoint_url = resolve_endpoint(endpoint)
+    key_id, secret = resolve_credentials(access_key_id, secret_access_key)
+    # Path-style addressing for custom endpoints (DigitalOcean Spaces, the Versity gateway): a
+    # virtual-host request (bucket.endpoint) needs per-bucket DNS and TLS that Versity lacks.
+    # boto3 already does this for custom endpoints; pinning it keeps it from changing under us.
+    config = Config(read_timeout=120, s3={"addressing_style": "path"})
     return boto3.client(
         "s3",
-        aws_access_key_id=aws_access_key_id,
-        aws_secret_access_key=aws_secret_access_key,
-        endpoint_url=aws_s3_endpoint,
+        aws_access_key_id=key_id,
+        aws_secret_access_key=secret,
+        endpoint_url=endpoint_url,
         config=config,
+        verify=verify,
     )
 
 
@@ -110,15 +182,32 @@ def list_buckets() -> list[str]:
     return [b["Name"] for b in client().list_buckets()["Buckets"]]
 
 
+def _is_digital_ocean(endpoint: str) -> bool:
+    host = endpoint_host(endpoint)
+    return host == "digitaloceanspaces.com" or host.endswith(".digitaloceanspaces.com")
+
+
 def get_bucket_region(bucket: str) -> str:
     """
-    Gets region (with subregion suffix) of specific bucket
-    DISCLAIMER - this might only work for Digital Ocean Spaces.
+    Gets region of specific bucket, used to decide whether a server-side copy between two
+    buckets is possible.
+
+    On DigitalOcean Spaces, the region with its subregion suffix is parsed
+    from the request id.
+    DISCLAIMER - that might only work for Digital Ocean Spaces.
         Documentation on format of these responses is not the clearest,
         nor is there evident documentation on format of these id strings
+    Other S3 services (e.g. the Versity gateway) report it in the x-amz-bucket-region header;
+    without it, every bucket is taken to be in the client's region.
     """
-    bucket_id = client().head_bucket(Bucket=bucket)["ResponseMetadata"]["RequestId"]
-    return bucket_id.split("-")[-1]
+    s3_client = client()
+    metadata = s3_client.head_bucket(Bucket=bucket)["ResponseMetadata"]
+    if _is_digital_ocean(resolve_endpoint()):
+        return metadata["RequestId"].split("-")[-1]
+    return (
+        metadata.get("HTTPHeaders", {}).get("x-amz-bucket-region")
+        or s3_client.meta.region_name
+    )
 
 
 def list_objects(bucket: str, prefix: str) -> list[dict]:
@@ -173,9 +262,11 @@ def folder_exists(bucket: str, prefix: str) -> bool:
     return "Contents" in resp
 
 
-def get_custom_metadata(bucket: str, key: str) -> dict:
+def get_custom_metadata(bucket: str, key: str) -> s3_metadata.ObjectMetadata:
     with _named(bucket, key):
-        return client().head_object(Bucket=bucket, Key=key)["Metadata"]
+        return s3_metadata.for_read(
+            client().head_object(Bucket=bucket, Key=key)["Metadata"]
+        )
 
 
 def get_metadata(bucket: str, key: str) -> Metadata:
@@ -186,7 +277,7 @@ def get_metadata(bucket: str, key: str) -> Metadata:
         last_modified=response["LastModified"],
         content_length=response["ContentLength"],
         content_type=response["ContentType"],
-        custom=response["Metadata"],
+        custom=s3_metadata.for_read(response["Metadata"]),
     )
 
 
@@ -252,10 +343,10 @@ def upload_file(
         task = progress.add_task(
             f"[green]Uploading [bold]{path.name}[/bold]", total=size
         )
-        standard_metadata = generate_metadata()
-        metadata = metadata or {}
-        metadata.update(standard_metadata)
-        extra_args: dict[Any, Any] = {"ACL": acl, "Metadata": metadata}
+        extra_args: dict[Any, Any] = {
+            "ACL": acl,
+            "Metadata": _with_standard_metadata(metadata),
+        }
         client().upload_file(
             str(path),
             bucket,
@@ -277,10 +368,10 @@ def upload_file_obj(
     with _progress() as progress:
         size = file_obj.getbuffer().nbytes
         task = progress.add_task(f"[green]Uploading [bold]{key}[/bold]", total=size)
-        standard_metadata = generate_metadata()
-        metadata = metadata or {}
-        metadata.update(standard_metadata)
-        extra_args: dict[Any, Any] = {"ACL": acl, "Metadata": metadata}
+        extra_args: dict[Any, Any] = {
+            "ACL": acl,
+            "Metadata": _with_standard_metadata(metadata),
+        }
         client().upload_fileobj(
             file_obj,
             bucket,
@@ -304,14 +395,16 @@ def copy_file(
         target_bucket = bucket
     client_ = client()
     existing_metadata = get_metadata(bucket, source_key).custom
-    if metadata is not None:
-        existing_metadata.update(metadata)
+    new_metadata = {
+        **s3_metadata.for_write(existing_metadata),
+        **s3_metadata.for_write(metadata),
+    }
     client_.copy_object(
         CopySource={"Bucket": bucket, "Key": source_key},
         Bucket=target_bucket,
         Key=target_key,
         ACL=acl,
-        Metadata=existing_metadata,
+        Metadata=new_metadata,
         MetadataDirective="REPLACE",
     )
 
@@ -557,11 +650,16 @@ def get_file_as_text(bucket: str, path: str) -> str:
         raise Exception(f"No body found for file '{path}' in bucket '{bucket}'.")
 
 
-def pyarrow_fs() -> fs.S3FileSystem:
+def pyarrow_fs(
+    endpoint: str | None = None,
+    access_key_id: str | None = None,
+    secret_access_key: str | None = None,
+) -> fs.S3FileSystem:
+    key_id, secret = resolve_credentials(access_key_id, secret_access_key)
     return fs.S3FileSystem(
-        access_key=os.environ["AWS_ACCESS_KEY_ID"],
-        secret_key=os.environ["AWS_SECRET_ACCESS_KEY"],
-        endpoint_override=os.environ.get("AWS_S3_ENDPOINT"),
+        access_key=key_id,
+        secret_key=secret,
+        endpoint_override=resolve_endpoint(endpoint),
     )
 
 

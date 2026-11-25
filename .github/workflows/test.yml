@@ -43,6 +43,13 @@ jobs:
               - .github/workflows/test_helper.yml
             product_metadata:
               - product-metadata/**
+            admin_ops:
+              - uv.lock
+              - admin/ops/**
+              - python/utils/**
+              - python/connectors/**
+              - python/lifecycle/**
+              - python/services/**
             template:
               - uv.lock
               - .github/workflows/test.yml

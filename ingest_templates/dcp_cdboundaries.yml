@@ -1,4 +1,5 @@
 id: dcp_cdboundaries
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC Community Districts (Clipped to shoreline)

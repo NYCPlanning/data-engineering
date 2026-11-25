@@ -135,3 +135,81 @@ def test_pull_versioned_reuses_local_copy(
     second = connector.pull_versioned("ds", "v1", dest, filename="data.csv")
     assert second["path"] == first["path"]
     assert second["path"].read_text() == "a\n1\n"
+
+
+ARCHIVE_KEYS = [
+    "ds_a/20260101/ds_a.parquet",
+    "ds_a/20260101/config.json",
+    "ds_a/20260201/config.json",
+    "ds_a/latest/config.json",
+    "ds_a/20250101_library/config.json",
+    "ds_a/partial/ds_a.parquet",  # no config.json: not archived yet
+    "ds_b/26c/config.json",
+    "stray.txt",
+]
+
+
+def _assert_all_versions(archived: dict):
+    assert {k: sorted(v) for k, v in archived.items()} == {
+        "ds_a": ["20260101", "20260201"],
+        "ds_b": ["26c"],
+    }
+
+
+def test_list_archived_versions_local(
+    connector: IngestDatastoreConnector, tmp_path: Path
+):
+    for key in ARCHIVE_KEYS:
+        (tmp_path / key).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / key).write_text("{}")
+    archived = connector.list_archived_versions()
+    _assert_all_versions(archived)
+    assert archived["ds_b"]["26c"] is not None
+
+
+@pytest.mark.parametrize("root_folder", ["", "ingest/datasets"])
+def test_list_archived_versions_s3(create_buckets, root_folder):
+    from dcpy.utils import s3
+
+    from .conftest import TEST_BUCKET
+
+    prefix = f"{root_folder}/" if root_folder else ""
+    for key in ARCHIVE_KEYS + ["elsewhere/ds_c/1/config.json"]:
+        s3.client().put_object(Bucket=TEST_BUCKET, Key=prefix + key, Body=b"{}")
+    if root_folder:
+        # a sibling folder sharing the prefix's first characters isn't listed
+        s3.client().put_object(
+            Bucket=TEST_BUCKET, Key="ingest/datasets_old/ds_x/1/config.json", Body=b"{}"
+        )
+    connector = IngestDatastoreConnector(
+        storage=PathedStorageConnector.from_storage_kwargs(
+            conn_type="test_ingest_datastore.s3",
+            storage_backend=StorageType.S3,
+            s3_bucket=TEST_BUCKET,
+            root_folder=root_folder,
+            _validate_root_path=False,
+        )
+    )
+    archived = (
+        connector.list_archived_versions()
+    )  # elsewhere/ds_c is a level too deep to count
+    _assert_all_versions(archived)
+    assert archived["ds_b"]["26c"] is not None
+    assert sorted(connector.list_archived_versions("ds_a")["ds_a"]) == [
+        "20260101",
+        "20260201",
+    ]
+
+
+def test_list_archived_versions_of_one_key(
+    connector: IngestDatastoreConnector, tmp_path: Path
+):
+    for key in ARCHIVE_KEYS:
+        (tmp_path / key).parent.mkdir(parents=True, exist_ok=True)
+        (tmp_path / key).write_text("{}")
+    assert list(connector.list_archived_versions("ds_b")) == ["ds_b"]
+    assert sorted(connector.list_archived_versions("ds_a")["ds_a"]) == [
+        "20260101",
+        "20260201",
+    ]
+    assert connector.list_archived_versions("missing") == {}

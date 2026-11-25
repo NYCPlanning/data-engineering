@@ -1,5 +1,6 @@
 import json
 import shutil
+from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 
@@ -130,6 +131,26 @@ class Connector(VersionedConnector, arbitrary_types_allowed=True):
     def list_versions(self, key: str, *, sort_desc: bool = True, **kwargs) -> list[str]:
         """This is maybe a problem in my plan"""
         return sorted(self.storage.get_subfolders(key), reverse=sort_desc)
+
+    def list_archived_versions(
+        self, key: str | None = None
+    ) -> dict[str, dict[str, datetime | None]]:
+        """Archived versions of dataset `key`, or of every dataset when it's left out, from one
+        recursive listing: {dataset id: {version: when its config.json was written}}.
+
+        A version counts once its config.json is there; ingest writes it with the data.
+        `latest` and library archives set aside as `<version>_library` aren't versions.
+        """
+        archived: dict[str, dict[str, datetime | None]] = {}
+        for path, modified in self.storage.list_files(key or ""):
+            parts = path.split("/")
+            if len(parts) != 3 or parts[2] != config_filename:
+                continue
+            dataset_id, version, _ = parts
+            if version == "latest" or version.endswith("_library"):
+                continue
+            archived.setdefault(dataset_id, {})[version] = modified
+        return archived
 
     def _get_config_obj(self, key: str, version: str) -> dict:
         with TemporaryDirectory() as tmp_dir:
