@@ -165,3 +165,10 @@ Things to know:
   failed to load. Reload it from Deployment > Code locations.
 - The runner holds the code. A code change only needs a new runner revision; reload the location
   in the webserver if it doesn't refresh on its own.
+
+## Starting and stopping the apps
+
+`scripts/de-apps-power.sh status|start|stop [--postgres]` starts or stops every `de-*` app in
+`ace-azu-e2-dcp-de-nonprod`, in dependency order. Other teams' apps in the environment are left
+alone. With `--postgres` it also stops or starts the Flexible Server. Azure restarts a stopped
+server by itself after 7 days.
