@@ -1,0 +1,103 @@
+models:
+  - name: dim_park
+    description: >
+      One row per NYC Parks property (dpr_parksproperties 20261016), with geometry.
+    columns:
+      - name: park_id
+        description: Parks' property number (gispropnum), such as M010.
+        data_tests: [unique, not_null]
+      - name: park_name
+        description: The name on the park's sign, such as Central Park.
+      - name: park_type
+        description: Parks' typecategory, such as Playground or Flagship Park.
+      - name: acres
+        description: As Parks has it.
+      - name: geom
+        description: Property boundary, made valid, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_open_space_walk_segment
+    description: >
+      One row per street segment in NYC Parks' open space walk file (dpr_open_space_walk_segments, November 2026),
+      with Parks' residents and walk time to open space, as a line.
+    columns:
+      - name: segment_id
+        description: LION segment ID, as Parks has it.
+        data_tests: [unique, not_null]
+      - name: borocd
+        description: The community district, Parks' CommunityBoard.
+        data_tests: [not_null]
+      - name: population
+        description: Residents Parks puts on the segment, fractional. The file doesn't say how.
+      - name: walk_minutes_to_open_space
+        description: Parks' walk time to open space, in whole minutes.
+        data_tests: [not_null]
+      - name: geom
+        description: Segment line, EPSG:4326.
+
+  - name: dim_walk_to_a_park_area
+    description: >
+      One row per polygon of NYC Parks' Walk to a Park service area for CEQR (dpr_walk_to_a_park 20261028): tax lots
+      within walking distance of a park, a quarter mile for small sites and a half mile for larger parks. There's no
+      key in the source.
+    columns:
+      - name: served_lot_number
+        description: A row number, since the source has no ID.
+        data_tests: [unique, not_null]
+      - name: geom
+        description: Served area, made valid, EPSG:4326.
+        data_tests: [not_null]
+
+  - name: dim_park_capital_project
+    description: >
+      One row per project in NYC Parks' Capital Project Tracker feed (dpr_capitalprojects 20260625), with every field
+      the feed has. Phase dates are month and year, as the first of the month.
+    columns:
+      - name: tracker_id
+        description: The tracker's ID.
+        data_tests: [unique, not_null]
+      - name: fms_id
+        description: The project's FMS ID, such as 846 P-405VITO.
+      - name: title
+        data_tests: [not_null]
+      - name: current_phase
+        description: As the feed has it.
+        data_tests:
+          - not_null
+          - accepted_values:
+              arguments:
+                values: [proposed, design, design-procurement, procurement, construction, completed]
+      - name: total_funding
+        description: As the feed has it, a range such as Between $5 million and $10 million, or an amount.
+      - name: funding_sources
+        description: List, such as City Council and Mayoral.
+      - name: boroughs
+        description: List of boroughs.
+      - name: last_updated
+        description: The date the feed says the project was last updated.
+
+  - name: dim_park_capital_project_location
+    description: >
+      One row per location of a project in dim_park_capital_project. Projects can have many. The 292 locations
+      with coordinates of 0, all with park ID NA, have no geometry.
+    data_tests:
+      - unique:
+          arguments:
+            column_name: "tracker_id || '-' || location_number"
+    columns:
+      - name: tracker_id
+        data_tests:
+          - not_null
+          - relationships:
+              arguments:
+                to: ref('dim_park_capital_project')
+                field: tracker_id
+      - name: location_number
+        description: The location's place in the project's list, from 1.
+        data_tests: [not_null]
+      - name: location_name
+        description: As the feed has it, such as Central Avenue between 70th and 71st Street. Often empty.
+      - name: park_id
+        description: Parks property number, or NA.
+      - name: geom
+        description: Location point, EPSG:4326, null where the feed has coordinates of 0.

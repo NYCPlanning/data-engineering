@@ -1,0 +1,7 @@
+adult_age_group,disability,median_cost
+Adults under 65,No disability,106346
+Adults under 65,Any disability,141419
+Adults under 65,Self-care disability,190677
+Adults 65 and older,No disability,123089
+Adults 65 and older,Any disability,137809
+Adults 65 and older,Self-care disability,178837
