@@ -9,10 +9,12 @@ It's stopped by default: ingest runs record their own materializations, so it's 
 catch up after archives arrive some other way. Switch it on in the UI (Automation) for that, and
 off again once a full pass is done.
 
-Each tick takes the next batch of templates, round-robin, with the cursor holding the index of
-the next one: one listing of the store per dataset and one materialized-partitions lookup per
-template, so a tick stays well inside Dagster's sensor timeout (60s by default). A full pass over
-275 templates at the defaults is 11 ticks.
+With the version catalog configured (DCPY_CATALOG_PG_URL), archives come from one catalog query
+and a tick checks every template. Without it, each tick takes the next batch of templates,
+round-robin, with the cursor holding the index of the next one: one listing of the store per
+dataset and one materialized-partitions lookup per template, so a tick stays well inside
+Dagster's sensor timeout (60s by default). A full pass over 275 templates at the defaults is 11
+ticks. DAGSTER_INGEST_ARCHIVE_SYNC_BATCH_SIZE, when set, applies either way.
 """
 
 import os
@@ -43,8 +45,11 @@ def _interval_seconds() -> int:
     return int(os.environ.get(INTERVAL_ENV_VAR) or DEFAULT_INTERVAL_SECONDS)
 
 
-def _batch_size() -> int:
-    return int(os.environ.get(BATCH_SIZE_ENV_VAR) or DEFAULT_BATCH_SIZE)
+def _batch_size(template_count: int, from_catalog: bool) -> int:
+    if size := os.environ.get(BATCH_SIZE_ENV_VAR):
+        return int(size)
+    # The catalog answers for every template in one query; the store takes a listing each.
+    return max(template_count, 1) if from_catalog else DEFAULT_BATCH_SIZE
 
 
 def next_batch(
@@ -74,6 +79,37 @@ def _is_partition_key(template: TemplateInfo, version: str) -> bool:
 class ArchivedVersion:
     path: str
     archived_at: datetime | None = None
+
+
+def catalog_configured() -> bool:
+    from dcpy.connectors.edm import catalog
+
+    return catalog.is_configured()
+
+
+def list_archived_versions_from_catalog(
+    templates: list[TemplateInfo],
+) -> dict[str, dict[str, ArchivedVersion]]:
+    """The same as list_archived_versions, from one query of the version catalog's rows for the
+    ingest datasets store."""
+    from dcpy.connectors.edm import catalog
+    from dcpy.connectors.edm.catalog import ingest_versions
+    from dcpy.lifecycle import config
+
+    store = config.connector_name("ingest", "default_datasets_connector")
+    dataset_ids = {d for t in templates for d in t.dataset_ids}
+    by_dataset: dict[str, dict[str, ArchivedVersion]] = {}
+    for row in catalog.query(ingest_versions.DOMAIN, store=store, keys=dataset_ids):
+        by_dataset.setdefault(row.key, {})[row.version] = ArchivedVersion(
+            (row.location or "").rstrip("/"), row.archived_at
+        )
+    found: dict[str, dict[str, ArchivedVersion]] = {}
+    for template in templates:
+        versions = found.setdefault(template.id, {})
+        for dataset_id in template.dataset_ids:
+            for version, archive in by_dataset.get(dataset_id, {}).items():
+                versions.setdefault(version, archive)
+    return found
 
 
 def list_archived_versions(
@@ -179,12 +215,27 @@ def sync_archives(
 def ingest_archive_sync(context: SensorEvaluationContext):
     # Evaluated in the code server (the runner), which has the store's credentials. Anything
     # wrong with them fails this tick, not the code location.
-    batch, next_index = next_batch(sorted(templates), context.cursor, _batch_size())
+    template_ids = sorted(templates)
+    archived = None
+    if catalog_configured():
+        batch, next_index = next_batch(
+            template_ids, context.cursor, _batch_size(len(template_ids), True)
+        )
+        batch_templates = [templates[t] for t in batch]
+        try:
+            archived = list_archived_versions_from_catalog(batch_templates)
+            context.log.info(
+                f"Read archives for {len(batch)} template(s) from the catalog"
+            )
+        except Exception as e:
+            # Fall back to the store, a normal-sized batch at a time.
+            context.log.warning(f"Catalog unavailable, listing the store instead: {e}")
+    if archived is None:
+        batch, next_index = next_batch(
+            template_ids, context.cursor, _batch_size(len(template_ids), False)
+        )
+        batch_templates = [templates[t] for t in batch]
+        archived = list_archived_versions(batch_templates)
+        context.log.info(f"Listed the store for {len(batch)} template(s)")
     context.log.info(f"Checking {len(batch)} template(s), {batch[0]} to {batch[-1]}")
-    batch_templates = [templates[t] for t in batch]
-    return sync_archives(
-        context,
-        batch_templates,
-        list_archived_versions(batch_templates),
-        cursor=str(next_index),
-    )
+    return sync_archives(context, batch_templates, archived, cursor=str(next_index))

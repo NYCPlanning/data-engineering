@@ -206,3 +206,99 @@ def test_list_archived_versions(tmp_path, monkeypatch):
         "bpl_libraries": [],
     }
     assert found["gtfs"]["2"].path == f"{tmp_path}/gtfs_routes/2"
+
+
+@pytest.fixture(autouse=True)
+def no_catalog(monkeypatch):
+    monkeypatch.delenv("DCPY_CATALOG_PG_URL", raising=False)
+
+
+def _catalog_rows(pairs):
+    from dcpy.connectors.edm.catalog import VersionRow
+
+    return [
+        VersionRow(
+            domain="ingest",
+            store="edm.recipes.datasets",
+            key=key,
+            version=version,
+            location=f"s3://edm-recipes/ingest/datasets/{key}/{version}/",
+            archived_at=WHEN,
+        )
+        for key, version in pairs
+    ]
+
+
+def test_list_archived_versions_from_catalog(monkeypatch):
+    from dcpy.connectors.edm import catalog
+
+    queries = []
+
+    def query(domain, *, store=None, keys=None, **kwargs):
+        queries.append((domain, store, set(keys)))
+        return _catalog_rows(
+            [("gtfs_stops", "1"), ("gtfs_routes", "1"), ("gtfs_routes", "2")]
+        )
+
+    monkeypatch.setattr(catalog, "query", query)
+    found = sensors.list_archived_versions_from_catalog([SOURCE, DYNAMIC])
+    assert queries == [
+        (
+            "ingest",
+            "edm.recipes.datasets",
+            {"gtfs_stops", "gtfs_routes", "bpl_libraries"},
+        )
+    ]
+    assert {t: sorted(v) for t, v in found.items()} == {
+        "gtfs": ["1", "2"],
+        "bpl_libraries": [],
+    }
+    assert found["gtfs"]["2"].path == "s3://edm-recipes/ingest/datasets/gtfs_routes/2"
+    assert found["gtfs"]["2"].archived_at == WHEN
+
+
+def test_sensor_reads_catalog_for_all_templates(instance, monkeypatch):
+    from dcpy.connectors.edm import catalog
+
+    monkeypatch.setenv("DCPY_CATALOG_PG_URL", "postgresql://catalog")
+    monkeypatch.setattr(sensors, "templates", TEMPLATES)
+    monkeypatch.setattr(
+        catalog,
+        "query",
+        lambda *a, **k: _catalog_rows(
+            [("bpl_libraries", "20260101"), ("gtfs_stops", "3")]
+        ),
+    )
+
+    def no_store(*a):
+        raise AssertionError("listed the store")
+
+    monkeypatch.setattr(sensors, "list_archived_versions", no_store)
+    result = sensors.ingest_archive_sync(build_sensor_context(instance=instance))
+    assert result.cursor == "0"  # every template in one tick
+    assert _reported(result) == {
+        ("ingest_bpl_libraries", "20260101"),
+        ("ingest_gtfs", "3"),
+    }
+
+
+def test_sensor_falls_back_to_store_when_catalog_fails(instance, monkeypatch):
+    from dcpy.connectors.edm import catalog
+
+    monkeypatch.setenv("DCPY_CATALOG_PG_URL", "postgresql://catalog")
+    monkeypatch.setenv(sensors.BATCH_SIZE_ENV_VAR, "2")
+    monkeypatch.setattr(sensors, "templates", TEMPLATES)
+
+    def down(*a, **k):
+        raise OSError("connection refused")
+
+    monkeypatch.setattr(catalog, "query", down)
+    listed = []
+    monkeypatch.setattr(
+        sensors,
+        "list_archived_versions",
+        lambda ts: listed.append([t.id for t in ts]) or {},
+    )
+    result = sensors.ingest_archive_sync(build_sensor_context(instance=instance))
+    assert listed == [["bpl_libraries", "dcp_ct2020"]]
+    assert result.cursor == "2"
