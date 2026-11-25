@@ -1,0 +1,3 @@
+# DuckDB spills to this when a query outgrows memory
+.tmp/
+__marimo__/
