@@ -175,6 +175,61 @@ class TestArchiveTransformedDatasets:
                     staging_dir=tmp_path / ".staging", latest=True
                 )
 
+    def test_writes_through_to_catalog(
+        self, tmp_path, run_process_datasets, monkeypatch
+    ):
+        monkeypatch.setenv("DCPY_CATALOG_PG_URL", "postgresql://catalog")
+        with mock.patch.object(run.ingest_versions, "record_archive") as record:
+            run.archive_transformed_datasets(
+                staging_dir=tmp_path / ".staging", latest=True
+            )
+        assert {c.kwargs["key"] for c in record.call_args_list} == {
+            ds.id for ds in run_process_datasets
+        }
+        call = record.call_args_list[0]
+        assert call.args[1] == "edm.recipes.datasets"
+        assert call.kwargs["latest"] is True
+        assert call.kwargs["config"]["transformation"]["run_details"]["timestamp"]
+
+    def test_catalog_failure_does_not_fail_ingest(
+        self, tmp_path, run_process_datasets, monkeypatch
+    ):
+        monkeypatch.setenv("DCPY_CATALOG_PG_URL", "postgresql://catalog")
+        with mock.patch.object(
+            run.ingest_versions, "record_archive", side_effect=OSError("down")
+        ):
+            run.archive_transformed_datasets(
+                staging_dir=tmp_path / ".staging", latest=True
+            )
+        datastore = connectors.get_processed_datastore_connector()
+        for dataset in run_process_datasets:
+            assert datastore.version_exists(dataset.id, dataset.version)
+
+    def test_no_catalog_writes_when_unset(self, tmp_path, monkeypatch):
+        monkeypatch.delenv("DCPY_CATALOG_PG_URL", raising=False)
+        with mock.patch.object(run.ingest_versions, "record_archive") as record:
+            run.archive_transformed_datasets(
+                staging_dir=tmp_path / ".staging", latest=True
+            )
+        assert not record.called
+
+    def test_latest_only_marks_latest_in_catalog(
+        self, tmp_path, run_process_datasets, monkeypatch
+    ):
+        run.archive_transformed_datasets(
+            staging_dir=tmp_path / ".staging", latest=False
+        )
+        monkeypatch.setenv("DCPY_CATALOG_PG_URL", "postgresql://catalog")
+        with (
+            mock.patch.object(run.ingest_versions, "record_archive") as record,
+            mock.patch.object(run.ingest_versions, "mark_latest") as mark,
+        ):
+            run.archive_transformed_datasets(
+                staging_dir=tmp_path / ".staging", latest=True
+            )
+        assert not record.called
+        assert mark.call_count == len(run_process_datasets)
+
 
 class TestIngest:
     def test_run(self, run_ingest):
