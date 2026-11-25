@@ -2,7 +2,7 @@ import typer
 from rich.console import Console
 from rich.table import Table
 
-from . import migrate, query
+from .db import migrate, query
 
 app = typer.Typer(help="Version catalog (DCPY_CATALOG_PG_URL)")
 

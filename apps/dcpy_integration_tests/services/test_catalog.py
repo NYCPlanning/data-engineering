@@ -11,8 +11,8 @@ from datetime import datetime
 import psycopg2
 import pytest
 
-from dcpy.connectors.edm import catalog
-from dcpy.connectors.edm.catalog import VersionRow
+from dcpy.services import catalog
+from dcpy.services.catalog import VersionRow
 
 URL = os.environ.get(
     "DCPY_CATALOG_TEST_PG_URL", "postgresql://postgres:postgres@postgis:5432/postgres"

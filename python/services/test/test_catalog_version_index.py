@@ -8,13 +8,16 @@ from unittest import mock
 
 import pytest
 
-from dcpy.connectors.edm import catalog, recipes
-from dcpy.connectors.edm.catalog import ingest_versions
+from dcpy.connectors.edm import recipes
 from dcpy.lifecycle import connector_registry
 from dcpy.lifecycle.builds import plan
+from dcpy.lifecycle.builds.version_index import InputRequest
+from dcpy.services import catalog
+from dcpy.services.catalog import db, ingest_versions
+from dcpy.services.catalog.version_index import CatalogVersionIndex
 from dcpy.utils import s3
 
-from ..conftest import RECIPES_BUCKET
+from .conftest import RECIPES_BUCKET
 
 STORE = "edm.recipes.datasets"
 
@@ -111,8 +114,8 @@ def _catalog_rows():
     return [r for r in rows if r.key != "not_in_catalog"]
 
 
-def _lock(recipe_path, tmp_path, name):
-    planned = plan.plan_recipe(recipe_path)
+def _lock(recipe_path, tmp_path, name, index=None):
+    planned = plan.plan_recipe(recipe_path, version_index=index)
     return plan.generate_lock_file(recipe_path, planned, tmp_path / name).read_text()
 
 
@@ -129,7 +132,7 @@ def test_catalog_plan_matches_bucket_plan(recipe_path, tmp_path, monkeypatch):
         return rows
 
     monkeypatch.setenv(catalog.CATALOG_PG_URL_ENV_VAR, "postgresql://catalog")
-    monkeypatch.setattr(catalog, "query", query)
+    monkeypatch.setattr(db, "query", query)
     with (
         mock.patch.object(
             recipes, "get_file_types", wraps=recipes.get_file_types
@@ -138,7 +141,9 @@ def test_catalog_plan_matches_bucket_plan(recipe_path, tmp_path, monkeypatch):
             recipes, "get_archive_date", wraps=recipes.get_archive_date
         ) as ad,
     ):
-        from_catalog = _lock(recipe_path, tmp_path, "catalog.lock.yml")
+        from_catalog = _lock(
+            recipe_path, tmp_path, "catalog.lock.yml", CatalogVersionIndex()
+        )
 
     assert from_catalog == from_bucket
     # one query for every input
@@ -172,8 +177,17 @@ def test_catalog_error_falls_back_to_bucket(recipe_path, tmp_path, monkeypatch):
         raise OSError("connection refused")
 
     monkeypatch.setenv(catalog.CATALOG_PG_URL_ENV_VAR, "postgresql://catalog")
-    monkeypatch.setattr(catalog, "query", down)
-    assert _lock(recipe_path, tmp_path, "catalog.lock.yml") == from_bucket
+    monkeypatch.setattr(db, "query", down)
+    index = CatalogVersionIndex()
+    assert _lock(recipe_path, tmp_path, "catalog.lock.yml", index) == from_bucket
+
+
+@pytest.mark.usefixtures("archives")
+def test_catalog_off_reads_nothing(monkeypatch):
+    monkeypatch.delenv(catalog.CATALOG_PG_URL_ENV_VAR, raising=False)
+    monkeypatch.setattr(db, "query", mock.Mock(side_effect=AssertionError))
+    inputs = [InputRequest("ingested", "latest")]
+    assert CatalogVersionIndex().resolve(STORE, inputs, []) == [None]
 
 
 @pytest.mark.usefixtures("archives")
@@ -181,8 +195,7 @@ def test_rows_for_another_root_folder_are_ignored(recipe_path, tmp_path, monkeyp
     """A catalog swept under a different RECIPES_BUCKET_ROOT_FOLDER doesn't answer."""
     rows = _catalog_rows()
     monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", "ingest")
-    from dcpy.lifecycle.builds.catalog_inputs import CatalogInputs
-
-    inputs = CatalogInputs(rows)
-    assert inputs.latest_version("ingested") is None
-    assert inputs.details("ingested", "v2", plan.RECIPE_FILE_TYPE_PREFERENCE) is None
+    inputs = [InputRequest("ingested", "latest"), InputRequest("ingested", "v2")]
+    assert CatalogVersionIndex.from_rows(
+        rows, inputs, plan.RECIPE_FILE_TYPE_PREFERENCE
+    ) == [None, None]

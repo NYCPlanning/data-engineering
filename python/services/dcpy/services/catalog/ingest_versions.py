@@ -27,7 +27,7 @@ from dcpy.connectors.ingest_datastore import config_filename
 from dcpy.utils import s3_metadata
 from dcpy.utils.logging import logger
 
-from . import VersionRow, WriteCounts, query, set_latest, sync_store, upsert
+from .db import VersionRow, WriteCounts, query, sync_store, upsert
 
 DOMAIN = "ingest"
 LATEST = "latest"
@@ -152,10 +152,12 @@ def sweep(
     store: str,
     previous: Iterable[VersionRow] = (),
     *,
+    keys: Iterable[str] | None = None,
     max_workers: int = MAX_WORKERS,
 ) -> tuple[list[VersionRow], SweepStats]:
-    """Every version in the datastore as a catalog row, from one listing. `previous` (the
-    catalog's current rows for this store) saves rereading unchanged config.json files."""
+    """Every version in the datastore as a catalog row, from one listing (one per key, with
+    `keys`). `previous` (the catalog's current rows for this store) saves rereading unchanged
+    config.json files."""
     stats = SweepStats()
     known = {(r.key, r.version): r for r in previous}
     known_latest = {
@@ -163,8 +165,13 @@ def sweep(
         for r in known.values()
         if r.is_latest
     }
-    grouped = group_listing(datastore.storage.list_files(""))
     storage = datastore.storage
+    listing = (
+        storage.list_files("")
+        if keys is None
+        else (item for key in keys for item in storage.list_files(key))
+    )
+    grouped = group_listing(listing)
 
     def read_config(path: str) -> dict:
         return json.loads(storage.read_bytes(path))
@@ -320,35 +327,20 @@ def refresh_store(
     return RefreshResult(store=store, counts=counts, stats=stats, seconds=seconds)
 
 
-def record_archive(
+def record_keys(
     datastore: IngestDatastore,
     store: str,
+    keys: Iterable[str],
     *,
-    key: str,
-    version: str,
-    config: dict,
-    files: Iterable[str],
-    latest: bool,
     conn_url: str | None = None,
-) -> None:
-    """Write through one archive ingest just pushed (and, with `latest`, pointed latest at)."""
-    row = row_for_archive(
-        store=store,
-        location=location(datastore, key, version),
-        key=key,
-        version=version,
-        config=config,
-        files=files,
-        is_latest=False,
-    )
-    # Pushing without latest doesn't move latest, so an existing row keeps its flag.
-    upsert([row], update_is_latest=False, conn_url=conn_url)
-    if latest:
-        mark_latest(store, key=key, version=version, conn_url=conn_url)
-
-
-def mark_latest(
-    store: str, *, key: str, version: str, conn_url: str | None = None
-) -> bool:
-    """Latest now points at an archive that's already there. False if it has no row yet."""
-    return set_latest(DOMAIN, store, key, version, conn_url=conn_url)
+) -> WriteCounts:
+    """Bring the catalog's rows for these keys up to date with the datastore, reading what's
+    archived rather than trusting the caller: an ingest that found its version already archived
+    leaves the existing config.json in place. Versions gone from the store are left for the next
+    refresh_store."""
+    keys = sorted(set(keys))
+    previous = query(DOMAIN, store=store, keys=keys, conn_url=conn_url)
+    rows, stats = sweep(datastore, store, previous, keys=keys)
+    for error in stats.errors:
+        logger.warning(f"Catalog: {store}: {error}")
+    return upsert(rows, conn_url=conn_url)

@@ -1,4 +1,4 @@
--- Which versions exist for an asset, per store. See dcpy.connectors.edm.catalog.
+-- Which versions exist for an asset, per store. See dcpy.services.catalog.
 CREATE TABLE catalog.versions (
     -- what kind of asset: ingest (processed datasets) for now; builds, drafts, published later
     domain text NOT NULL,

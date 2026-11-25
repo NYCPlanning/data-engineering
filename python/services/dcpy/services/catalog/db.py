@@ -1,16 +1,11 @@
-"""Version catalog: which versions exist for an asset, per store, in Postgres.
+"""The catalog's Postgres table: connect, migrate, write and query rows.
 
 One table, `catalog.versions`, keyed by (domain, store, key, version). `domain` says what kind of
 asset a row is (`ingest` for processed ingest datasets; builds, drafts and published later),
 `store` is the registry name of the connector it lives behind, so rows for two stores holding the
 same datasets (DigitalOcean and Azure) sit side by side.
 
-It's a cache of what's in the stores, never the source of truth: readers fall back to the store
-when a row is missing or the catalog can't be reached. Set DCPY_CATALOG_PG_URL (a postgres URL)
-to turn it on; unset, nothing reads or writes it.
-
-    python -m dcpy connectors catalog migrate
-    python -m dcpy connectors catalog show --domain ingest --key dcp_ct2010
+Migrations are the numbered SQL files in ./migrations, applied in order by `migrate`.
 """
 
 import os

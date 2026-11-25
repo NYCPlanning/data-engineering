@@ -16,8 +16,9 @@ dcpy is layered — **a package imports only from its own layer or a lower one:*
    `dcpy-product-metadata`: may depend on `dcpy-utils` and (where declared) each
    other, must not depend on `dcpy-lifecycle`.
 3. **`dcpy-lifecycle`** — the stages (`ingest`, `builds`, `package`, `distribute`, `validate`),
-   their shared base, and cross-stage `scripts`; wires everything together, and is the only
-   package allowed to depend on all the others.
+   their shared base, and cross-stage `scripts`; wires everything together.
+4. **`dcpy-services`** — live services on top of lifecycle, e.g. the version catalog (Postgres).
+   Depends on lifecycle like the apps do; nothing in the layers below imports it.
 
 This hierarchy isn't just convention: each package
 declares its actual dcpy dependencies in its own `pyproject.toml`, so `uv sync --package dcpy-X`
@@ -97,17 +98,33 @@ Where in the buckets things go. All default to today's DigitalOcean layout:
 
 | Env var | Default | Effect |
 |---|---|---|
-| `DCPY_CATALOG_PG_URL` | unset (off) | Postgres URL of the version catalog (`dcpy.connectors.edm.catalog`; the `de_apps` database on Azure, see `apps/docker/README.md`). Set, ingest writes archives through to it, build planning resolves `edm.recipes.datasets` inputs from it in one query, and `ingest_archive_sync` reads it. Unset, everything lists the bucket, as before. |
+| `DCPY_CATALOG_PG_URL` | unset (off) | Postgres URL of the version catalog (`dcpy.services.catalog`; the `de_apps` database on Azure, see `apps/docker/README.md`). Unset, nothing reads or writes it and everything lists the bucket, as before. |
+
+The catalog lives in `dcpy-services`, above `dcpy-lifecycle`: lifecycle and connectors don't know
+it exists. Callers wire it in:
+
+- **After an ingest**, ingest emits a `DatasetsArchived` event (`dcpy.lifecycle.events`), always.
+  dcpy-services registers a handler for it under the `dcpy.lifecycle.event_handlers` entry point
+  group; with `DCPY_CATALOG_PG_URL` set, it re-reads what was archived for those datasets and
+  updates their rows. So any process with dcpy-services installed and the catalog configured
+  writes through, Dagster or GitHub Actions. Without dcpy-services, or with the catalog unset,
+  nothing happens. A failing handler only logs a warning; the next full refresh catches up.
+- **Build planning** takes an optional `version_index` (`dcpy.lifecycle.builds.version_index`);
+  pass `dcpy.services.catalog.version_index.CatalogVersionIndex()` to resolve
+  `edm.recipes.datasets` inputs from one query. Without one, planning lists the bucket.
+- **A full refresh** of a datasets store: `catalog.ingest_versions.refresh_store`.
 
 The catalog is a cache of the stores, keyed by `(domain, store, key, version)`, where `store` is
 the connector's registry name. A reader falls back to the bucket for anything it can't answer
 exactly, including rows written under another bucket or `RECIPES_BUCKET_ROOT_FOLDER`, and for
 everything when the database is unreachable, so a stale catalog slows planning down without
-changing its lock file. A write-through that fails only logs a warning.
+changing its lock file. Its schema is the numbered SQL files in
+`python/services/dcpy/services/catalog/migrations/`, shipped as package data and applied by
+`migrate`.
 
 ```bash
-python -m dcpy connectors catalog migrate
-python -m dcpy connectors catalog show --domain ingest --key dcp_ct2010
+python -m dcpy.services catalog migrate
+python -m dcpy.services catalog show --domain ingest --key dcp_ct2010
 ```
 
 The legacy `dcpy.connectors.edm.recipes` functions use the default `AWS_*` client, so they follow

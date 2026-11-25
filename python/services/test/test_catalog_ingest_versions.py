@@ -1,5 +1,5 @@
 """Catalog row building from an ingest datastore listing. No database: the writes and queries
-are covered in apps/dcpy_integration_tests/connectors/edm/test_catalog.py."""
+are covered in apps/dcpy_integration_tests/services/test_catalog.py."""
 
 import json
 from datetime import datetime
@@ -7,10 +7,10 @@ from pathlib import Path
 
 import pytest
 
-from dcpy.connectors.edm import catalog
-from dcpy.connectors.edm.catalog import ingest_versions as iv
 from dcpy.connectors.hybrid_pathed_storage import PathedStorageConnector, StorageType
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastore
+from dcpy.services import catalog
+from dcpy.services.catalog import ingest_versions as iv
 
 STORE = "edm.recipes.datasets"
 INGEST_TS = "2026-11-01T22:30:00-04:00"
@@ -118,6 +118,30 @@ def test_sweep(store):
     assert lib.file_types == ["pg_dump"]
     assert lib.archived_at == datetime.fromisoformat("2020-01-02T03:04:05-05:00")
     assert lib.details[iv.NAME] is None and lib.details[iv.URL] is None
+
+
+def test_sweep_some_keys(store):
+    conn, _ = store
+    rows, stats = iv.sweep(conn, STORE, keys=["a"])
+    assert {(r.key, r.version) for r in rows} == {("a", "v1"), ("a", "v2")}
+    assert stats.versions == 2
+
+
+def test_record_keys_reads_what_is_archived(store, monkeypatch):
+    conn, root = store
+    queried, written = [], []
+    monkeypatch.setattr(
+        iv, "query", lambda domain, **kw: queried.append(kw["keys"]) or []
+    )
+    monkeypatch.setattr(
+        iv, "upsert", lambda rows, **kw: written.extend(rows) or catalog.WriteCounts()
+    )
+    iv.record_keys(conn, STORE, ["a", "a"])
+    assert queried == [["a"]]
+    by_version = {r.version: r for r in written}
+    assert set(by_version) == {"v1", "v2"}
+    assert by_version["v2"].is_latest and not by_version["v1"].is_latest
+    assert by_version["v2"].details[iv.ARCHIVED_AT_ISO] == INGEST_TS
 
 
 def test_sweep_reuses_unchanged_configs(store, monkeypatch):
