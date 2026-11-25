@@ -116,6 +116,15 @@ def test_client_explicit_args_win(aws_credentials, monkeypatch):
     assert (creds.access_key, creds.secret_key) == ("explicit-id", "explicit-secret")
 
 
+def test_client_passes_ca_bundle(aws_credentials, monkeypatch):
+    seen = {}
+    monkeypatch.setattr(s3.boto3, "client", lambda *args, **kwargs: seen.update(kwargs))
+    s3.client(verify="/etc/ssl/city-ca.pem")
+    assert seen["verify"] == "/etc/ssl/city-ca.pem"
+    s3.client()
+    assert seen["verify"] is None
+
+
 def test_list_buckets(create_buckets):
     """Tests listing s3 buckets."""
     buckets = s3.list_buckets()

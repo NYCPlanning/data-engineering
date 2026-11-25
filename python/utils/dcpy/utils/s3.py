@@ -155,8 +155,12 @@ def client(
     endpoint: str | None = None,
     access_key_id: str | None = None,
     secret_access_key: str | None = None,
+    verify: bool | str | None = None,
 ) -> S3Client:
-    """Returns a client for S3. Arguments left out come from the AWS_* environment."""
+    """Returns a client for S3. Arguments left out come from the AWS_* environment.
+
+    `verify` is boto3's: a CA bundle path for an endpoint whose certificate isn't from a
+    public CA, or None for the default trust store (or AWS_CA_BUNDLE)."""
     endpoint_url = resolve_endpoint(endpoint)
     key_id, secret = resolve_credentials(access_key_id, secret_access_key)
     # Path-style addressing for custom endpoints (DigitalOcean Spaces, the Versity gateway): a
@@ -169,6 +173,7 @@ def client(
         aws_secret_access_key=secret,
         endpoint_url=endpoint_url,
         config=config,
+        verify=verify,
     )
 
 
