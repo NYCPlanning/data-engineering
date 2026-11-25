@@ -1,5 +1,6 @@
 from os import environ as env
 from pathlib import Path
+from typing import Unpack
 
 from dcpy import configuration
 from dcpy.configuration import PRIVATE_BUCKET
@@ -25,6 +26,7 @@ from dcpy.connectors.edm.open_data_nyc import OpenDataConnector
 from dcpy.connectors.esri.arcgis_feature_service import ArcGISFeatureServiceConnector
 from dcpy.connectors.hybrid_pathed_storage import (
     PathedStorageConnector,
+    S3Kwargs,
     StorageType,
 )
 from dcpy.connectors.registry import (
@@ -56,44 +58,129 @@ AXWAY_SFTP_PASSWORD = env.get("AXWAY_SFTP_PASSWORD")
 AXWAY_SFTP_PORT = str(env.get("AXWAY_SFTP_PORT", "22"))
 
 
-def _make_ingest_datastores():
-    assert configuration.RECIPES_BUCKET
+def _make_ingest_datastores(
+    prefix: str = "",
+    recipes_bucket: str | None = None,
+    private_bucket: str | None = None,
+    recipes_root_folder: str | None = None,
+    **s3: Unpack[S3Kwargs],
+):
+    """datasets/ and raw/ sit under `recipes_root_folder` (default RECIPES_BUCKET_ROOT_FOLDER).
+
+    The private connector writes `datasets/` at its bucket's root, unless the private bucket is
+    the recipes bucket (Azure has no edm-private), where it shares the recipes root folder.
+    """
+    recipes_bucket = recipes_bucket or configuration.RECIPES_BUCKET
+    assert recipes_bucket
+    private_bucket = private_bucket or PRIVATE_BUCKET
+    if recipes_root_folder is None:
+        recipes_root_folder = configuration.recipes_bucket_root_folder()
+    private_root_folder = (
+        recipes_root_folder if private_bucket == recipes_bucket else ""
+    )
+
+    def storage(conn_type: str, bucket: str, root_folder: str):
+        return PathedStorageConnector.from_storage_kwargs(
+            conn_type=conn_type,
+            storage_backend=StorageType.S3,
+            s3_bucket=bucket,
+            root_folder=root_folder,
+            _validate_root_path=False,
+            **s3,
+        )
+
+    datasets = f"{prefix}edm.recipes.datasets"
+    raw = f"{prefix}edm.recipes.raw_datasets"
+    private = f"{prefix}edm.private"
     return [
         [
             ingest_datastore.Connector(
-                storage=PathedStorageConnector.from_storage_kwargs(
-                    conn_type="edm.recipes.datasets",
-                    storage_backend=StorageType.S3,
-                    s3_bucket=configuration.RECIPES_BUCKET,
-                    root_folder="datasets",
-                    _validate_root_path=False,
-                )
+                conn_type=datasets,
+                storage=storage(
+                    datasets,
+                    recipes_bucket,
+                    configuration.join_root_folder(recipes_root_folder, "datasets"),
+                ),
             ),
-            "edm.recipes.datasets",
+            datasets,
         ],
         [
             ingest_datastore.Connector(
-                storage=PathedStorageConnector.from_storage_kwargs(
-                    conn_type="edm.recipes.raw_datasets",
-                    storage_backend=StorageType.S3,
-                    s3_bucket=configuration.RECIPES_BUCKET,
-                    root_folder="raw",
-                    _validate_root_path=False,
-                )
+                conn_type=raw,
+                storage=storage(
+                    raw,
+                    recipes_bucket,
+                    configuration.join_root_folder(recipes_root_folder, "raw"),
+                ),
             ),
-            "edm.recipes.raw_datasets",
+            raw,
         ],
         [
             PrivateConnector.create(
-                storage=PathedStorageConnector.from_storage_kwargs(
-                    conn_type="edm.private",
-                    storage_backend=StorageType.S3,
-                    s3_bucket=PRIVATE_BUCKET,
-                    root_folder="datasets",
-                    _validate_root_path=False,
-                )
+                storage=storage(
+                    private,
+                    private_bucket,
+                    configuration.join_root_folder(private_root_folder, "datasets"),
+                ),
+                conn_type=private,
             ),
-            "edm.private",
+            private,
+        ],
+    ]
+
+
+# Azure Blob, reached through the versitygw S3 gateway. Registered next to the default edm.*
+# connectors, as az.*, only when AZ_S3_ENDPOINT and its keys are set, so one process can read
+# one store and write the other. Bucket names default to the edm.* ones.
+AZURE_PREFIX = "az."
+
+
+def _azure_s3() -> S3Kwargs | None:
+    endpoint = env.get("AZ_S3_ENDPOINT")
+    key_id = env.get("AZ_S3_ACCESS_KEY_ID")
+    secret = env.get("AZ_S3_SECRET_ACCESS_KEY")
+    if not endpoint:
+        return None
+    if not (key_id and secret):
+        logger.warning(
+            "AZ_S3_ENDPOINT is set without AZ_S3_ACCESS_KEY_ID and AZ_S3_SECRET_ACCESS_KEY; "
+            f"not registering the {AZURE_PREFIX}* connectors."
+        )
+        return None
+    return {
+        "s3_endpoint_url": endpoint,
+        "s3_access_key_id": key_id,
+        "s3_secret_access_key": secret,
+    }
+
+
+def _make_azure_connectors(s3: S3Kwargs) -> list:
+    publishing: S3Kwargs = {
+        **s3,
+        "s3_bucket": env.get("AZ_PUBLISHING_BUCKET")
+        or configuration.PUBLISHING_BUCKET
+        or "edm-publishing",
+    }
+    return [
+        *_make_ingest_datastores(
+            prefix=AZURE_PREFIX,
+            recipes_bucket=env.get("AZ_RECIPES_BUCKET"),
+            private_bucket=env.get("AZ_PRIVATE_BUCKET"),
+            # Unset falls back to RECIPES_BUCKET_ROOT_FOLDER; set it empty for the bucket root.
+            recipes_root_folder=env.get("AZ_RECIPES_BUCKET_ROOT_FOLDER"),
+            **s3,
+        ),
+        *[
+            [
+                factory(conn_type=f"{AZURE_PREFIX}{name}", **publishing),
+                f"{AZURE_PREFIX}{name}",
+            ]
+            for factory, name in [
+                (BuildsConnector.create, "edm.publishing.builds"),
+                (DraftsConnector.create, "edm.publishing.drafts"),
+                (PublishedConnector.create, "edm.publishing.published"),
+                (PlanConnector.create, "edm.publishing.plan"),
+            ]
         ],
     ]
 
@@ -143,6 +230,9 @@ def _set_default_connectors():
             "axway",  # DOF Axway SecureTransport - PLUTO input files
         ],
     ]
+
+    if azure_s3 := _azure_s3():
+        conns.extend(_make_azure_connectors(azure_s3))
 
     for conn in conns:
         if type(conn) is list:

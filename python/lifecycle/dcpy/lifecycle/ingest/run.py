@@ -2,6 +2,8 @@ import shutil
 from pathlib import Path
 
 from dcpy.configuration import INGEST_DEF_DIR
+from dcpy.connectors.edm import catalog
+from dcpy.connectors.edm.catalog import ingest_versions
 from dcpy.lifecycle import config
 from dcpy.lifecycle.ingest.connectors import (
     get_processed_datastore_connector,
@@ -201,6 +203,38 @@ def process_datasets(
     return ingested_datasets
 
 
+def _record_in_catalog(
+    dataset: IngestedDataset, *, latest: bool, archived: bool
+) -> None:
+    """Write an archive through to the version catalog, when it's configured.
+
+    Never fails the ingest: the archive is what counts, and the catalog's daily refresh picks up
+    anything missed here.
+    """
+    if not catalog.is_configured():
+        return
+    store = config.connector_name("ingest", "default_datasets_connector")
+    try:
+        if archived:
+            ingest_versions.record_archive(
+                get_processed_datastore_connector(),
+                store,
+                key=dataset.id,
+                version=dataset.version,
+                config=dataset.model_dump(exclude_none=True, mode="json"),
+                files=[dataset.filename, INGESTED_DATASET_FILENAME],
+                latest=latest,
+            )
+        elif latest:
+            ingest_versions.mark_latest(store, key=dataset.id, version=dataset.version)
+        logger.info(f"Catalog: recorded {dataset.id} {dataset.version} in {store}")
+    except Exception as e:
+        logger.warning(
+            f"Catalog: couldn't record {dataset.id} {dataset.version}, leaving it to the "
+            f"next refresh: {e}"
+        )
+
+
 def archive_transformed_datasets(
     *,
     datasets: list[IngestedDataset] | None = None,
@@ -239,6 +273,7 @@ def archive_transformed_datasets(
                 overwrite=overwrite_okay,
                 latest=latest,
             )
+            _record_in_catalog(dataset, latest=latest, archived=True)
         elif latest:
             # --latest is its own request: point latest at this archive even when the
             # versioned copy is already there and doesn't need rewriting.
@@ -251,6 +286,7 @@ def archive_transformed_datasets(
                 config_path=dataset_folder / INGESTED_DATASET_FILENAME,
                 acl=dataset.source.acl,
             )
+            _record_in_catalog(dataset, latest=True, archived=False)
         else:
             logger.info("Skipping archival")
 

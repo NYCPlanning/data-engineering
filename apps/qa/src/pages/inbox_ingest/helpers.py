@@ -3,6 +3,7 @@ from pathlib import Path
 
 from streamlit.runtime.uploaded_file_manager import UploadedFile
 
+from dcpy import configuration
 from dcpy.lifecycle.ingest import get_template_directory, list_ingest_templates
 from dcpy.lifecycle.ingest.connectors import get_processed_datastore_connector
 from dcpy.lifecycle.ingest.models import DataSourceDefinition
@@ -66,8 +67,9 @@ def list_inbox_versions(dataset_id: str) -> list[str]:
     a wildly different value than its same-letters counterpart - e.g. "26a" and "26A" should
     land next to each other, not at opposite ends of the list.
     """
-    bucket = get_inbox_bucket(dataset_id)
-    prefix = f"{INBOX_MARKER}{dataset_id}/"
+    bucket, prefix = configuration.inbox_location(
+        get_inbox_bucket(dataset_id), f"{INBOX_MARKER}{dataset_id}/"
+    )
     return sorted(s3.get_subfolders(bucket, prefix), key=str.lower, reverse=True)
 
 
@@ -78,9 +80,11 @@ def resolve_destination(dataset_id: str, version: str) -> ResolvedInboxUpload:
     bucket = getattr(source, "bucket", None)
     if not bucket:
         raise ValueError(f"Ingest template '{dataset_id}' has no source.bucket set")
+    # Where ingest's s3 source will actually read it (INBOX_ROOT_FOLDER).
+    bucket, key = configuration.inbox_location(bucket, source.key)
     return ResolvedInboxUpload(
         bucket=bucket,
-        key=source.key,
+        key=key,
         processed_check_id=_processed_check_id(definition),
     )
 

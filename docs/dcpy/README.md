@@ -57,6 +57,63 @@ the isolated per-package CI job and each package's `test/test_package_boundary.p
 
 Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure wiki page.
 
+### Which store a process uses
+
+Every S3 client resolves its endpoint through `dcpy.utils.s3.resolve_endpoint`. `AWS_S3_ENDPOINT`
+is required (no default), and a host on `DCPY_S3_ENDPOINT_DENYLIST` (comma-separated) is refused.
+
+Lifecycle stages find their stores by connector name in the registry
+(`dcpy.lifecycle.connector_registry`). Each default can be overridden by env var:
+
+| Env var | Default connector | Used for |
+|---|---|---|
+| `DCPY_INGEST_RAW_CONNECTOR` | `edm.recipes.raw_datasets` | ingest: raw archive |
+| `DCPY_INGEST_DATASETS_CONNECTOR` | `edm.recipes.datasets` | ingest: processed archive |
+| `DCPY_RECIPES_CONNECTOR` | `edm.recipes.datasets` | builds: latest recipe versions |
+| `DCPY_BUILDS_CONNECTOR` | `edm.publishing.builds` | builds |
+| `DCPY_DRAFTS_CONNECTOR` | `edm.publishing.drafts` | drafts |
+| `DCPY_PUBLISHED_CONNECTOR` | `edm.publishing.published` | published |
+| `DCPY_PLAN_CONNECTOR` | `edm.publishing.plan` | plans |
+
+When `AZ_S3_ENDPOINT`, `AZ_S3_ACCESS_KEY_ID` and `AZ_S3_SECRET_ACCESS_KEY` are set, the registry
+also registers an `az.*` copy of the storage connectors (`az.edm.recipes.datasets`,
+`az.edm.recipes.raw_datasets`, `az.edm.private`, `az.edm.publishing.builds|drafts|published|plan`)
+pointed at that endpoint (Azure Blob through the versitygw gateway). Buckets default to the `edm.*`
+names; `AZ_RECIPES_BUCKET`, `AZ_PUBLISHING_BUCKET`, `AZ_PRIVATE_BUCKET` override them. One process
+can then read DigitalOcean and write Azure, e.g. `DCPY_INGEST_DATASETS_CONNECTOR=az.edm.recipes.datasets`.
+Registration makes no network calls. A recipe's input `source` (default `edm.recipes.datasets`) is
+still a connector name of its own.
+
+Where in the buckets things go. All default to today's DigitalOcean layout:
+
+| Env var | Default | Effect |
+|---|---|---|
+| `RECIPES_BUCKET_ROOT_FOLDER` | empty | folder ingest's `datasets/` and `raw/` sit under in the recipes bucket (`ingest` on Azure: `edm-recipes/ingest/datasets/...`). Applies to `edm.recipes.*` and to `dcpy.connectors.edm.recipes` (builds' file-type, archive-date and version lookups). Slashes are stripped. The local build cache keeps `datasets/<id>/<version>/`. |
+| `AZ_RECIPES_BUCKET_ROOT_FOLDER` | unset: `RECIPES_BUCKET_ROOT_FOLDER` | the same for the `az.*` family; set it empty for the bucket root |
+| `PRIVATE_BUCKET` / `AZ_PRIVATE_BUCKET` | `edm-private` | bucket for `edm.private` / `az.edm.private`. Set to the recipes bucket (Azure has no `edm-private`) and private datasets share the recipes root folder, e.g. `edm-recipes/ingest/datasets/`. A separate private bucket keeps `datasets/` at its root. |
+| `INBOX_ROOT_FOLDER` | unset (off) | ingest templates with an `s3` source naming `bucket: edm-private` read `RECIPES_BUCKET/<INBOX_ROOT_FOLDER>/<key>` instead (`inbox` on Azure). The QA app's inbox upload follows it. Other buckets are untouched. |
+
+### Version catalog
+
+| Env var | Default | Effect |
+|---|---|---|
+| `DCPY_CATALOG_PG_URL` | unset (off) | Postgres URL of the version catalog (`dcpy.connectors.edm.catalog`; the `de_apps` database on Azure, see `apps/docker/README.md`). Set, ingest writes archives through to it, build planning resolves `edm.recipes.datasets` inputs from it in one query, and `ingest_archive_sync` reads it. Unset, everything lists the bucket, as before. |
+
+The catalog is a cache of the stores, keyed by `(domain, store, key, version)`, where `store` is
+the connector's registry name. A reader falls back to the bucket for anything it can't answer
+exactly, including rows written under another bucket or `RECIPES_BUCKET_ROOT_FOLDER`, and for
+everything when the database is unreachable, so a stale catalog slows planning down without
+changing its lock file. A write-through that fails only logs a warning.
+
+```bash
+python -m dcpy connectors catalog migrate
+python -m dcpy connectors catalog show --domain ingest --key dcp_ct2010
+```
+
+The legacy `dcpy.connectors.edm.recipes` functions use the default `AWS_*` client, so they follow
+`RECIPES_BUCKET_ROOT_FOLDER`, never the `AZ_*` settings. The same goes for `INBOX_ROOT_FOLDER`,
+which uses `RECIPES_BUCKET`.
+
 ## Removed
 
 - **`dcpy.library`** — the old ingest/archive tool, replaced by `dcpy.lifecycle.ingest`. Its

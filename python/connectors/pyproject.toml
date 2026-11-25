@@ -13,6 +13,8 @@ dependencies = [
     "beautifulsoup4",
     "cloudpathlib[all]",
     "pandas",
+    # the version catalog (dcpy.connectors.edm.catalog)
+    "psycopg2-binary",
     "pydantic",
     "pytz",
     "requests",
@@ -50,4 +52,7 @@ include = ["dcpy*"]
 namespaces = true
 
 [tool.setuptools.package-data]
-dcpy = ["connectors/edm/bytes/site_map.json"]
+dcpy = [
+    "connectors/edm/bytes/site_map.json",
+    "connectors/edm/catalog/migrations/*.sql",
+]

@@ -7,14 +7,12 @@ from __future__ import annotations
 
 import json
 import tempfile
-from datetime import datetime
 from pathlib import Path
 from tempfile import TemporaryDirectory
 from typing import TYPE_CHECKING
 from zipfile import ZipFile
 
 import pandas as pd
-import pytz
 import yaml
 
 if TYPE_CHECKING:
@@ -28,20 +26,13 @@ from dcpy.lifecycle.builds.connector import (
     get_drafts_default_connector,
 )
 from dcpy.lifecycle.builds.models import BuildMetadata
-from dcpy.utils import git, versions
+from dcpy.utils import s3_metadata, versions
 from dcpy.utils.logging import logger
 
 
 def _generate_metadata() -> dict[str, str]:
     """Generates "standard" s3 metadata for our files"""
-    metadata = {
-        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
-    }
-    try:
-        metadata["commit"] = git.commit_hash()
-    except Exception:
-        pass  # No git repo or commit available
-    return metadata
+    return s3_metadata.standard()
 
 
 def build_exists(product: str, build: str):

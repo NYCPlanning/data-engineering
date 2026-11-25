@@ -1,4 +1,5 @@
 id: dcp_atomicpolygons
+version_schedule: geosupport_quarterly
 
 attributes:
   name: Atomic Polygons

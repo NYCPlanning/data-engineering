@@ -5,32 +5,33 @@ LIFECYCLE_STAGE = "builds"
 
 
 # Putting this in a separate file so that sub-stages can access it,
-# but so that we can also expose this in the __init__
+# but so that we can also expose this in the __init__.
+# Each name can be overridden by env var: see config.CONNECTOR_ENV_VARS.
 def get_recipes_default_connector():
     return connectors.versioned[
-        config.stage_config(LIFECYCLE_STAGE)["default_recipes_connector"]
+        config.connector_name(LIFECYCLE_STAGE, "default_recipes_connector")
     ]
 
 
 def get_builds_default_connector():
     return connectors.versioned[
-        config.stage_config(LIFECYCLE_STAGE)["default_builds_connector"]
+        config.connector_name(LIFECYCLE_STAGE, "default_builds_connector")
     ]
 
 
 def get_drafts_default_connector():
     return connectors.versioned[
-        config.stage_config(LIFECYCLE_STAGE)["default_drafts_connector"]
+        config.connector_name(LIFECYCLE_STAGE, "default_drafts_connector")
     ]
 
 
 def get_published_default_connector():
     return connectors.versioned[
-        config.stage_config(LIFECYCLE_STAGE)["default_published_connector"]
+        config.connector_name(LIFECYCLE_STAGE, "default_published_connector")
     ]
 
 
 def get_plan_default_connector():
     return connectors.versioned[
-        config.stage_config(LIFECYCLE_STAGE)["default_plan_connector"]
+        config.connector_name(LIFECYCLE_STAGE, "default_plan_connector")
     ]

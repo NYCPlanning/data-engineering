@@ -29,6 +29,8 @@ def _set_default_conf():
         "local_data_path": data_path,
         "stages": {
             "ingest": {
+                "default_raw_connector": "edm.recipes.raw_datasets",
+                "default_datasets_connector": "edm.recipes.datasets",
                 "local_data_path": "ingest",
             },
             "plan": {
@@ -89,6 +91,25 @@ def stage_config(stages: str):
         if not curr_stage:
             raise Exception(f"No such stage {s} found. Full stage path: {stages}")
     return curr_stage
+
+
+# Env vars that override which registered connector a stage uses, read on every lookup.
+CONNECTOR_ENV_VARS = {
+    ("builds", "default_recipes_connector"): "DCPY_RECIPES_CONNECTOR",
+    ("builds", "default_builds_connector"): "DCPY_BUILDS_CONNECTOR",
+    ("builds", "default_drafts_connector"): "DCPY_DRAFTS_CONNECTOR",
+    ("builds", "default_published_connector"): "DCPY_PUBLISHED_CONNECTOR",
+    ("builds", "default_plan_connector"): "DCPY_PLAN_CONNECTOR",
+    ("ingest", "default_raw_connector"): "DCPY_INGEST_RAW_CONNECTOR",
+    ("ingest", "default_datasets_connector"): "DCPY_INGEST_DATASETS_CONNECTOR",
+}
+
+
+def connector_name(stage: str, key: str) -> str:
+    """Registry name of the connector a stage uses for `key`: the env var override if set
+    (see CONNECTOR_ENV_VARS), else the stage config."""
+    env_var = CONNECTOR_ENV_VARS.get((stage, key))
+    return (env.get(env_var) if env_var else None) or stage_config(stage)[key]
 
 
 def local_data_path_for_stage(stages: str) -> Path:

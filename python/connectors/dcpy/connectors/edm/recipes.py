@@ -9,8 +9,9 @@ from dcpy.connectors.edm.models import (
     Dataset,
     DatasetKey,
     DatasetType,
+    archive_timestamp_from_config,
 )
-from dcpy.utils import s3
+from dcpy.utils import s3, s3_metadata
 from dcpy.utils.logging import logger
 
 # TODO: continuing hacking away until this module is no more.
@@ -23,26 +24,54 @@ def _bucket() -> str:
     return configuration.RECIPES_BUCKET
 
 
+# Also the local cache layout (fetch_dataset). In the bucket it sits under
+# RECIPES_BUCKET_ROOT_FOLDER, see _s3_dataset_folder.
 DATASET_FOLDER = "datasets"
 
 
+def _s3_dataset_folder() -> str:
+    return configuration.recipes_bucket_folder(DATASET_FOLDER)
+
+
 def s3_folder_path(ds: Dataset | DatasetKey) -> str:
-    return f"{DATASET_FOLDER}/{ds.id}/{ds.version}"
+    return f"{_s3_dataset_folder()}/{ds.id}/{ds.version}"
 
 
 def s3_file_path(ds: Dataset) -> str:
     return f"{s3_folder_path(ds)}/{ds.file_name}"
 
 
+CONFIG_FILENAME = "config.json"
+
+
+def _read_config(folder: str, files: set[str]) -> dict | None:
+    if CONFIG_FILENAME not in files:
+        return None
+    with s3.get_file_as_stream(_bucket(), f"{folder}/{CONFIG_FILENAME}") as stream:
+        return json.loads(stream.read())
+
+
 def get_archive_date(ds: Dataset | DatasetKey) -> datetime | None:
-    """Date the dataset version was ingested, from S3 custom metadata or LastModified."""
+    """When the dataset version was archived.
+
+    In order: the run timestamp in its config.json (see archive_timestamp_from_config), then
+    the date-created custom metadata, then LastModified, of config.json (or the first file by
+    name, without one). The config's timestamp is the only one a copy to another store keeps.
+    """
     folder = s3_folder_path(ds)
     files = s3.get_filenames(_bucket(), folder)
     if not files:
         return None
-    key = f"{folder}/{next(iter(files))}"
-    metadata = s3.get_metadata(_bucket(), key)
-    date_created = metadata.custom.get("date-created")
+    try:
+        config = _read_config(folder, files)
+    except json.JSONDecodeError:
+        config = None
+    if config and (timestamp := archive_timestamp_from_config(config)):
+        return timestamp
+    name = CONFIG_FILENAME if CONFIG_FILENAME in files else sorted(files)[0]
+    metadata = s3.get_metadata(_bucket(), f"{folder}/{name}")
+    # Ingest archives on DigitalOcean say "date-created"; s3_metadata reads either spelling.
+    date_created = metadata.custom.get(s3_metadata.DATE_CREATED)
     if date_created:
         return datetime.fromisoformat(date_created)
     return metadata.last_modified
@@ -52,13 +81,9 @@ def get_url(ds: Dataset | DatasetKey) -> str | None:
     """Source URL the dataset version was ingested from, from its archived config.json."""
     folder = s3_folder_path(ds)
     files = s3.get_filenames(_bucket(), folder)
-    if not files:
+    config = _read_config(folder, files)
+    if config is None:
         return None
-    if "config.json" not in files:
-        return None
-    config_key = f"{folder}/config.json"
-    with s3.get_file_as_stream(_bucket(), config_key) as stream:
-        config = json.loads(stream.read())
     return config.get("attributes", {}).get("url")
 
 
@@ -66,7 +91,7 @@ def get_all_versions(name: str) -> list[str]:
     """Get all versions of a specific recipe dataset"""
     return [
         folder
-        for folder in s3.get_subfolders(_bucket(), f"{DATASET_FOLDER}/{name}/")
+        for folder in s3.get_subfolders(_bucket(), f"{_s3_dataset_folder()}/{name}/")
         if folder != "latest"
     ]
 

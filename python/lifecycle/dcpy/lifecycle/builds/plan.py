@@ -1,6 +1,7 @@
 import csv
 import os
 import re
+import time
 from pathlib import Path
 
 import pandas as pd
@@ -19,6 +20,7 @@ from dcpy.configuration import BUILD_NAME
 from dcpy.connectors.edm import recipes
 from dcpy.connectors.edm.models import BuildKey, DatasetType, DraftKey, PublishKey
 from dcpy.lifecycle.builds import config, utils
+from dcpy.lifecycle.builds.catalog_inputs import CatalogInputs
 from dcpy.lifecycle.builds.connector import (
     get_published_default_connector,
     get_recipes_default_connector,
@@ -33,6 +35,8 @@ from dcpy.utils import versions
 from dcpy.utils.logging import logger
 
 DEFAULT_RECIPE = "recipe.yml"
+# The source whose inputs get file type, name, archive date and url resolved at plan time.
+RECIPES_DATASETS_SOURCE = "edm.recipes.datasets"
 RECIPE_FILE_TYPE_PREFERENCE = [
     DatasetType.pg_dump,
     DatasetType.parquet,
@@ -272,9 +276,24 @@ def plan_recipe(
             PublishKey(recipe.product, "latest")
         ).to_dict()["version"]
 
+    # One catalog query for every recipes input, when the catalog's configured.
+    started = time.monotonic()
+    from_catalog = 0
+    catalog_inputs = CatalogInputs.load(
+        RECIPES_DATASETS_SOURCE,
+        sorted(
+            {
+                ds.id
+                for ds in recipe.inputs.datasets
+                if ds.source == RECIPES_DATASETS_SOURCE
+            }
+        ),
+    )
+
     for ds in recipe.inputs.datasets:
         assert ds.source, f"Cannot import a dataset without a resolved source: {ds}"
         connector = connectors[ds.source]
+        cataloged = catalog_inputs if ds.source == RECIPES_DATASETS_SOURCE else None
 
         if ds.version is None:
             if ds.version_env_var is not None:
@@ -301,11 +320,25 @@ def plan_recipe(
                 ds.version = "latest"
 
         if ds.version == "latest":
-            logger.info(f"Querying versions for {connector.conn_type}")
-            ds.version = connector.get_latest_version(ds.id)
+            if cataloged and (latest := cataloged.latest_version(ds.id)):
+                ds.version = latest
+            else:
+                logger.info(f"Querying versions for {connector.conn_type}")
+                ds.version = connector.get_latest_version(ds.id)
 
+        details = (
+            cataloged.details(ds.id, ds.version, RECIPE_FILE_TYPE_PREFERENCE)
+            if cataloged
+            else None
+        )
+        if details:
+            from_catalog += 1
+            ds.file_type = ds.file_type or details.file_type
+            ds.name = details.name
+            ds.archive_date = details.archive_date
+            ds.url = details.url
         # Determine edm recipes dataset details
-        if ds.source == "edm.recipes.datasets":
+        elif ds.source == RECIPES_DATASETS_SOURCE:
             # Determine the file type
             # Hack for now, to accomodate existing file types
             ds.file_type = ds.file_type or recipes.get_preferred_file_type(
@@ -319,6 +352,12 @@ def plan_recipe(
             archive_dt = recipes.get_archive_date(ds.dataset)
             ds.archive_date = archive_dt.date() if archive_dt else None
             ds.url = recipes.get_url(ds.dataset)
+
+    if catalog_inputs is not None:
+        logger.info(
+            f"Resolved {from_catalog} input(s) from the version catalog, the rest from the "
+            f"bucket, in {time.monotonic() - started:.2f}s"
+        )
 
     # Resolve any unresolved conf values (e.g. from the environment or provided vars)
     for conf in recipe.get_unresolved_stage_config_values():

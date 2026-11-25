@@ -1,4 +1,5 @@
 id: dcp_lion
+version_schedule: geosupport_quarterly
 
 attributes:
   name: LION

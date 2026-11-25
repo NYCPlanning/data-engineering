@@ -203,3 +203,31 @@ class SparseConfig(BaseModel, extra="allow"):
             AliasPath("execution_details", "timestamp"),
         ),
     )
+
+
+# Where a dataset config.json records when it was archived: ingest, older ingest, library.
+_ARCHIVE_TIMESTAMP_PATHS = [
+    ("transformation", "run_details", "timestamp"),
+    ("run_details", "timestamp"),
+    ("execution_details", "timestamp"),
+]
+
+
+def archive_timestamp_from_config(config: dict) -> datetime | None:
+    """When the archive was written, by the run's own clock, from its config.json.
+
+    Unlike object dates, this survives a copy to another store. None when the config
+    doesn't say, or says something unparseable.
+    """
+    for path in _ARCHIVE_TIMESTAMP_PATHS:
+        value: object = config
+        for part in path:
+            value = value.get(part) if isinstance(value, dict) else None
+        if isinstance(value, datetime):
+            return value
+        if isinstance(value, str):
+            try:
+                return datetime.fromisoformat(value)
+            except ValueError:
+                continue
+    return None

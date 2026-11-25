@@ -22,8 +22,8 @@ PARQUET_FILEPATH = (
 RESOURCE_DIR = Path(__file__).parent / "resources"
 
 
-def _load_folder(mode):
-    version_folder = f"datasets/{TEST_DATASET}/{mode}/"
+def _load_folder(mode, dataset_folder="datasets"):
+    version_folder = f"{dataset_folder}/{TEST_DATASET}/{mode}/"
     s3.upload_folder(
         RECIPES_BUCKET,
         RESOURCE_DIR / mode,
@@ -32,7 +32,10 @@ def _load_folder(mode):
         contents_only=True,
     )
     s3.copy_folder(
-        RECIPES_BUCKET, version_folder, f"datasets/{TEST_DATASET}/latest", "private"
+        RECIPES_BUCKET,
+        version_folder,
+        f"{dataset_folder}/{TEST_DATASET}/latest",
+        "private",
     )
     with open(RESOURCE_DIR / mode / "config.json") as f:
         return json.load(f)
@@ -127,6 +130,57 @@ def test_get_archive_date(load_ingest: SparseConfig):
     assert isinstance(result, datetime)
 
 
+def test_get_archive_date_prefers_ingest_run_timestamp(load_ingest: SparseConfig):
+    ds = DatasetKey(id=load_ingest.id, version=load_ingest.version)
+    assert recipes.get_archive_date(ds) == datetime.fromisoformat(
+        "2025-09-26T12:38:22.544455-04:00"
+    )
+
+
+def test_get_archive_date_library_execution_details(load_library: SparseConfig):
+    ds = DatasetKey(id=load_library.id, version=load_library.version)
+    assert recipes.get_archive_date(ds) == datetime.fromisoformat(
+        "2024-09-05T11:36:31.636395-04:00"
+    )
+
+
+def _put(folder: str, name: str, body: bytes, metadata: dict | None = None):
+    s3.client().put_object(
+        Bucket=RECIPES_BUCKET,
+        Key=f"{folder}/{name}",
+        Body=body,
+        Metadata=metadata or {},
+    )
+
+
+def test_get_archive_date_config_without_timestamp_uses_date_created(
+    create_buckets,
+):
+    """A library-era config.json without execution_details: date-created metadata."""
+    folder = "datasets/old/v1"
+    _put(folder, "old.sql", b"", {"date-created": "2020-01-02T03:04:05+00:00"})
+    _put(
+        folder,
+        "config.json",
+        json.dumps({"dataset": {"name": "old", "version": "v1"}}).encode(),
+        {"date-created": "2020-01-02T03:04:05+00:00"},
+    )
+    ds = DatasetKey(id="old", version="v1")
+    assert recipes.get_archive_date(ds) == datetime.fromisoformat(
+        "2020-01-02T03:04:05+00:00"
+    )
+
+
+def test_get_archive_date_no_config_uses_last_modified(create_buckets):
+    folder = "datasets/bare/v1"
+    _put(folder, "bare.sql", b"")
+    ds = DatasetKey(id="bare", version="v1")
+    archived = recipes.get_archive_date(ds)
+    assert (
+        archived == s3.get_metadata(RECIPES_BUCKET, f"{folder}/bare.sql").last_modified
+    )
+
+
 def test_get_archive_date_missing_dataset(create_buckets):
     ds = DatasetKey(id="nonexistent", version="v1")
     result = recipes.get_archive_date(ds)
@@ -155,4 +209,48 @@ def test_read_df_cache(load_ingest: SparseConfig, create_temp_filesystem: Path):
         local_cache_dir=create_temp_filesystem,
     )
     print(create_temp_filesystem / PARQUET_FILEPATH)
+    assert (create_temp_filesystem / PARQUET_FILEPATH).exists()
+
+
+@pytest.fixture
+def no_root_folder(monkeypatch):
+    monkeypatch.delenv("RECIPES_BUCKET_ROOT_FOLDER", raising=False)
+
+
+def test_default_keys_are_at_bucket_root(no_root_folder):
+    ds = DatasetKey(id="x", version="v1")
+    assert recipes.s3_folder_path(ds) == "datasets/x/v1"
+
+
+@pytest.mark.parametrize("root", ["ingest", "/ingest/", "ingest/"])
+def test_root_folder_prefixes_keys(monkeypatch, root):
+    monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", root)
+    ds = Dataset(id="x", version="v1", file_type=DatasetType.parquet)
+    assert recipes.s3_folder_path(ds) == "ingest/datasets/x/v1"
+    assert recipes.s3_file_path(ds) == "ingest/datasets/x/v1/x.parquet"
+
+
+def test_lookups_under_root_folder(create_buckets, monkeypatch):
+    """Archives under ingest/datasets/ are found; ones at the root are not."""
+    _load_folder("library")  # at datasets/, should be invisible
+    _load_folder(INGEST_VERSION, dataset_folder="ingest/datasets")
+    monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", "ingest")
+
+    assert set(recipes.get_all_versions(TEST_DATASET)) == {INGEST_VERSION}
+    ds = Dataset(id=TEST_DATASET, version=INGEST_VERSION)
+    assert recipes.get_file_types(ds) == {DatasetType.parquet}
+    assert recipes.get_archive_date(ds) is not None
+    assert recipes.get_url(ds) == "https://example.com/data"
+    assert recipes.get_file_types(Dataset(id=TEST_DATASET, version="library")) == set()
+
+
+def test_local_cache_layout_ignores_root_folder(
+    load_ingest: SparseConfig, create_temp_filesystem: Path, monkeypatch
+):
+    monkeypatch.setenv("RECIPES_BUCKET_ROOT_FOLDER", "ingest")
+    _load_folder(INGEST_VERSION, dataset_folder="ingest/datasets")
+    ds = Dataset(
+        id=load_ingest.id, version=load_ingest.version, file_type=DatasetType.parquet
+    )
+    recipes.read_df(ds, local_cache_dir=create_temp_filesystem)
     assert (create_temp_filesystem / PARQUET_FILEPATH).exists()

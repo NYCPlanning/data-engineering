@@ -1,4 +1,5 @@
 id: dcp_stateassemblydistricts_wi
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC State Assembly Districts (Water Included)

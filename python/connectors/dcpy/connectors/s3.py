@@ -1,5 +1,6 @@
 from pathlib import Path
 
+from dcpy import configuration
 from dcpy.connectors.registry import StorageConnector
 from dcpy.utils import s3
 from dcpy.utils.logging import logger
@@ -25,11 +26,17 @@ class S3Connector(StorageConnector):
     def _apply_prefix(self, key: str) -> str:
         return (self.prefix or "") + key
 
+    def _locate(self, key: str, bucket: str | None = None) -> tuple[str, str]:
+        """Bucket and key to use, after the prefix and the INBOX_ROOT_FOLDER remap."""
+        return configuration.inbox_location(
+            self._bucket(bucket), self._apply_prefix(key)
+        )
+
     def exists(self, key: str, bucket: str | None = None) -> bool:
-        return s3.object_exists(self._bucket(bucket), self._apply_prefix(key))
+        return s3.object_exists(*self._locate(key, bucket))
 
     def get_subfolders(self, prefix: str, bucket: str | None = None) -> list[str]:
-        return s3.get_subfolders(self._bucket(bucket), self._apply_prefix(prefix))
+        return s3.get_subfolders(*self._locate(prefix, bucket))
 
     def _push(
         self,
@@ -41,8 +48,7 @@ class S3Connector(StorageConnector):
         metadata: dict | None = None,
         **kwargs,
     ) -> dict:
-        key = self._apply_prefix(key)
-        bucket = self._bucket(bucket)
+        bucket, key = self._locate(key, bucket)
 
         logger.info(f"Pushing {filepath} to {bucket}/{key}")
         s3.upload_file(
@@ -62,9 +68,8 @@ class S3Connector(StorageConnector):
         bucket: str | None = None,
         **kwargs,
     ) -> dict:
-        if self.prefix:
-            key = self.prefix + key
-        bucket = self._bucket(bucket)
+        bucket, key = self._locate(key, bucket)
+        logger.info(f"Pulling {bucket}/{key}")
         filepath = s3.download_file(bucket=bucket, key=key, path=destination_path)
         return {"path": filepath}
 
