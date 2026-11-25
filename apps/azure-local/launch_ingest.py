@@ -2,8 +2,10 @@
 
     python apps/azure-local/launch_ingest.py bpl_libraries [--version 20261124] [--no-latest]
 
-Registers the version as a key in the ingest_version dynamic partitions def, then launches
-ingest_<template> for that partition with IngestConfig. Standard library only.
+For a template with a dynamic partitions def (ingest_<template>), registers the version as a key
+there first. A template on a version schedule has static keys, so the version has to be one of
+them (e.g. 26c). Then launches ingest_<template> for that partition with IngestConfig. Standard
+library only.
 """
 
 import argparse
@@ -15,7 +17,6 @@ from datetime import date
 
 LOCATION = "data-engineering"
 REPOSITORY = "__repository__"
-PARTITIONS_DEF = "ingest_version"
 TERMINAL = {"SUCCESS", "FAILURE", "CANCELED"}
 
 
@@ -31,6 +32,18 @@ def gql(url: str, query: str, variables: dict) -> dict:
         sys.exit(f"GraphQL errors: {body['errors']}")
     return body["data"]
 
+
+PARTITIONS = """
+query($key: AssetKeyInput!) {
+  assetNodeOrError(assetKey: $key) {
+    __typename
+    ... on AssetNode {
+      partitionDefinition { type name }
+      partitionKeysByDimension { partitionKeys }
+    }
+  }
+}
+"""
 
 ADD_PARTITION = """
 mutation($selector: RepositorySelector!, $name: String!, $key: String!) {
@@ -67,18 +80,25 @@ def main() -> None:
     args = parser.parse_args()
 
     selector = {"repositoryLocationName": LOCATION, "repositoryName": REPOSITORY}
-    added = gql(
-        args.url,
-        ADD_PARTITION,
-        {"selector": selector, "name": PARTITIONS_DEF, "key": args.version},
-    )["addDynamicPartition"]
-    if added["__typename"] not in (
-        "AddDynamicPartitionSuccess",
-        "DuplicateDynamicPartitionError",
-    ):
-        sys.exit(f"addDynamicPartition: {added}")
-
     asset = f"ingest_{args.template}"
+    node = gql(args.url, PARTITIONS, {"key": {"path": [asset]}})["assetNodeOrError"]
+    if node["__typename"] != "AssetNode":
+        sys.exit(f"no asset {asset}: {node['__typename']}")
+    partitions_def = node["partitionDefinition"]
+    if partitions_def["type"] == "DYNAMIC":
+        added = gql(
+            args.url,
+            ADD_PARTITION,
+            {"selector": selector, "name": partitions_def["name"], "key": args.version},
+        )["addDynamicPartition"]
+        if added["__typename"] not in (
+            "AddDynamicPartitionSuccess",
+            "DuplicateDynamicPartitionError",
+        ):
+            sys.exit(f"addDynamicPartition: {added}")
+    elif args.version not in node["partitionKeysByDimension"][0]["partitionKeys"]:
+        sys.exit(f"{args.version} isn't one of {asset}'s partition keys")
+
     params = {
         "selector": {
             **selector,

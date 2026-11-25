@@ -1,13 +1,16 @@
 import os
 import shutil
+from dataclasses import dataclass
 from pathlib import Path
 from typing import List, Optional
 
 from dagster import AssetExecutionContext, AssetKey, Config, MaterializeResult, asset
 from dcpy.lifecycle.ingest import get_template_directory, list_ingest_templates
+from dcpy.lifecycle.ingest.models import DatasetDefinition
 from dcpy.lifecycle.ingest.plan import get_jinja_vars, read_definition_file
+from dcpy.lifecycle.ingest.version_schedules import VersionSchedule
 
-from .partitions import ingest_partition_def
+from .partitions import ingest_partitions_def
 from .resources import LocalStorageResource
 
 
@@ -101,20 +104,29 @@ def _remove_staging_dir(path: Path, stop_at: Path) -> None:
             break  # not empty: another run's staging is in it
 
 
-def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
+def ingest_asset_key(template_id: str) -> AssetKey:
+    return AssetKey(f"ingest_{template_id}")
+
+
+def make_ingest_asset(
+    template_id: str,
+    depends_on: List[str] | None = None,
+    version_schedule: VersionSchedule | None = None,
+):
     """Create a Dagster asset for an ingest template
 
     Args:
         template_id: The template identifier
         depends_on: List of template IDs this template depends on
+        version_schedule: The template's shared version schedule, if it has one
     """
     # Convert template dependencies to Dagster asset keys
-    deps = [AssetKey(f"ingest_{dep}") for dep in (depends_on or [])]
+    deps = [ingest_asset_key(dep) for dep in (depends_on or [])]
 
     @asset(
         name=f"ingest_{template_id}",
         deps=deps,
-        partitions_def=ingest_partition_def,
+        partitions_def=ingest_partitions_def(template_id, version_schedule),
         group_name="ingest",
         tags={"template": template_id, "lifecycle_stage": "ingest"},
     )
@@ -188,29 +200,52 @@ def make_ingest_asset(template_id: str, depends_on: List[str] | None = None):
     return _ingest_asset
 
 
+@dataclass(frozen=True)
+class TemplateInfo:
+    id: str
+    depends_on: list[str]
+    version_schedule: VersionSchedule | None
+    # Ids the template archives under: its own, or each downstream dataset's for a data source
+    dataset_ids: tuple[str, ...]
+
+
+def read_template_info(template_path: Path) -> TemplateInfo:
+    # Version is unknown at load time (it's picked per run), so render {{ version }} with a
+    # dummy: only depends_on, version_schedule and the dataset ids are needed, and none of
+    # them are templated. A template with syntax errors raises here and blocks the deploy.
+    definition = read_definition_file(template_path, version="dummy_version")
+    template_id = template_path.stem
+    if definition.version_schedule and not template_takes_version(template_path):
+        raise ValueError(
+            f"Template '{template_id}' has version_schedule "
+            f"'{definition.version_schedule}' but no {{{{ version }}}} placeholder"
+        )
+    dataset_ids = (
+        (definition.id,)
+        if isinstance(definition, DatasetDefinition)
+        else tuple(d.id for d in definition.datasets)
+    )
+    return TemplateInfo(
+        id=template_id,
+        depends_on=definition.depends_on,
+        version_schedule=definition.version_schedule,
+        dataset_ids=dataset_ids,
+    )
+
+
 # Create ingest assets for all templates
 ingest_templates = list_ingest_templates()
 template_directory = get_template_directory()
 
-# Build dependency map for all templates
-template_deps: dict[str, list[str]] = {}
-all_template_names = {template.name for template in ingest_templates}
+templates: dict[str, TemplateInfo] = {
+    template.name: read_template_info(template_directory / f"{template.name}.yml")
+    for template in ingest_templates
+}
+template_deps = {t.id: t.depends_on for t in templates.values()}
+all_template_names = set(templates)
 
-for template in ingest_templates:
-    template_path = template_directory / f"{template.name}.yml"
-
-    # Read the template definition using Pydantic models
-    # For templates that use {{ version }}, provide a dummy value since:
-    # 1. Version is unknown at asset load time (determined at runtime)
-    # 2. depends_on field never uses Jinja2 templating
-    # 3. We only need depends_on, not the full validated model
-    # If the template has syntax errors, this will raise and block deployment
-    definition = read_definition_file(template_path, version="dummy_version")
-    depends_on = definition.depends_on
-    template_deps[template.name] = depends_on
-
-    # Validate dependencies exist
-    validate_dependencies(template.name, depends_on, all_template_names)
+for template_id, depends_on in template_deps.items():
+    validate_dependencies(template_id, depends_on, all_template_names)
 
 # Detect circular dependencies for all templates
 for template_id in template_deps:
@@ -218,6 +253,6 @@ for template_id in template_deps:
 
 # Create assets with dependencies
 ingest_assets = [
-    make_ingest_asset(template.name, template_deps[template.name])
-    for template in ingest_templates
+    make_ingest_asset(t.id, t.depends_on, t.version_schedule)
+    for t in templates.values()
 ]

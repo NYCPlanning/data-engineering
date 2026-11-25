@@ -32,13 +32,13 @@ def fake_ingest(monkeypatch):
 
 
 def _run(tmp_path, push=True):
-    from ingest.partitions import ingest_partition_def
-
-    asset = make_ingest_asset(TEMPLATE)
     from dagster import DagsterInstance
 
+    from ingest.partitions import dynamic_partitions_def_name
+
+    asset = make_ingest_asset(TEMPLATE)
     instance = DagsterInstance.ephemeral()
-    instance.add_dynamic_partitions(ingest_partition_def.name, ["20260101"])
+    instance.add_dynamic_partitions(dynamic_partitions_def_name(TEMPLATE), ["20260101"])
     return materialize(
         [asset],
         partition_key="20260101",
