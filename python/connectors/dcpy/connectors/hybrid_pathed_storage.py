@@ -1,9 +1,10 @@
 import logging as default_logging
 import os
 import shutil
+from datetime import datetime, timezone
 from enum import Enum
 from pathlib import Path
-from typing import Any, Callable, Unpack
+from typing import Any, Callable, Iterator, Unpack
 
 from cloudpathlib import CloudPath, S3Client
 from cloudpathlib.azure import AzureBlobClient
@@ -367,6 +368,40 @@ class PathedStorageConnector(Connector, arbitrary_types_allowed=True):
 
     def exists(self, key: str) -> bool:
         return (self.storage.root_path / key).exists()
+
+    def list_files(self, prefix: str = "") -> Iterator[tuple[str, datetime | None]]:
+        """Every file under `prefix`, recursively, as (key relative to the root, last modified).
+
+        On S3 this is one paginated listing of the whole prefix, rather than a call per folder.
+        """
+        root = self.storage.root_path
+        if self.storage.storage_type == StorageType.S3:
+            base = root.key.strip("/")  # type: ignore[union-attr]
+            base = f"{base}/" if base else ""
+            full_prefix = base + prefix.strip("/")
+            if prefix.strip("/"):
+                full_prefix += "/"
+            pages = root.client.client.get_paginator("list_objects_v2").paginate(  # type: ignore[union-attr]
+                Bucket=root.bucket,  # type: ignore[union-attr]
+                Prefix=full_prefix,
+            )
+            for page in pages:
+                for obj in page.get("Contents", []):
+                    yield obj["Key"][len(base) :], obj.get("LastModified")
+            return
+
+        folder = root / prefix
+        if not folder.exists():
+            return
+        root_str = str(root).rstrip("/")
+        for path in folder.rglob("*"):
+            if path.is_file():
+                modified = (
+                    datetime.fromtimestamp(path.stat().st_mtime, tz=timezone.utc)
+                    if self.storage.storage_type == StorageType.LOCAL
+                    else None
+                )
+                yield str(path)[len(root_str) :].lstrip("/"), modified
 
     def get_subfolders(self, prefix: str) -> list[str]:
         # List subfolders under the given prefix
