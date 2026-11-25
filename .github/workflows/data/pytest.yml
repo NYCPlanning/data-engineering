@@ -15,3 +15,6 @@
 - name: cscl
   working-directory: products/cscl
   calls: [ "tests -s --verbose" ]
+- name: admin_ops
+  working-directory: admin/ops
+  calls: [ "tests -v" ]
