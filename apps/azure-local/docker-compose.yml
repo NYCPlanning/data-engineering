@@ -39,6 +39,8 @@ services:
       POSTGRES_DB: dagster
     volumes:
       - pg-data:/var/lib/postgresql
+      # de_apps role and database, at first init; db-init covers volumes made before this
+      - ./postgres-init:/docker-entrypoint-initdb.d:ro
     ports:
       - "127.0.0.1:15432:5432"
     healthcheck:
@@ -46,6 +48,20 @@ services:
       interval: 2s
       timeout: 3s
       retries: 30
+
+  # Creates the de_apps role and database (the version catalog's home) if they're missing, as the
+  # superuser. The same script runs at first init; this covers volumes initialized before it.
+  db-init:
+    image: postgres:18.7-alpine
+    environment:
+      PGPASSWORD: dagster
+    command: ["psql", "-h", "postgres", "-U", "dagster", "-d", "postgres", "-v", "ON_ERROR_STOP=1",
+              "-f", "/init/01-de-apps.sql"]
+    volumes:
+      - ./postgres-init:/init:ro
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   # Self-signed cert for Azurite. versitygw signs copy-source SAS URLs as https-only, so over plain
   # HTTP its CopyObject quietly falls back to streaming the object through the gateway.
@@ -152,6 +168,8 @@ services:
       INBOX_ROOT_FOLDER: inbox
       # Keep run scratch out of the mounted repo (Azure uses the default, inside the image).
       DCPY_LIFECYCLE_DATA_DIR: /tmp/dcpy-lifecycle
+      # The version catalog, in our own database, not Dagster's (see postgres-init/).
+      DCPY_CATALOG_PG_URL: postgresql://de_apps:de_apps@postgres:5432/de_apps
     healthcheck:
       test: ["CMD", "dagster", "api", "grpc-health-check", "-p", "4000"]
       interval: 5s
@@ -162,6 +180,8 @@ services:
       postgres:
         condition: service_healthy
       bucket-init:
+        condition: service_completed_successfully
+      db-init:
         condition: service_completed_successfully
 
   de-dagster:

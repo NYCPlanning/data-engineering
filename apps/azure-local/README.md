@@ -9,7 +9,8 @@ standing in for the storage account:
 | `de-dagster-runner` | `de-dagster-runner` app | `entrypoints/dagster-runner.sh`, code server on 4000; runs execute here |
 | `de-blob-gateway` | `de-blob-gateway` app | `versity/versitygw:v1.10.0`, Azure backend; host port 127.0.0.1:17070 |
 | `azurite` | storage account (flat, no HNS) | HTTPS with a self-signed cert from `certs`; host port 127.0.0.1:10000 |
-| `postgres` | Dagster's Postgres flexible server | Postgres 18; host port 127.0.0.1:15432 |
+| `postgres` | Dagster's Postgres flexible server | Postgres 18; host port 127.0.0.1:15432; `dagster` and `de_apps` databases |
+| `db-init` | - | one-shot: creates the `de_apps` role and database if missing (see `postgres-init/`) |
 | `bucket-init` | - | one-shot: creates `edm-recipes` and `edm-publishing` through the gateway; no `edm-private`, as on Azure |
 
 Both Dagster services run the `de-apps:local` image with this repo mounted over
@@ -77,7 +78,9 @@ year's `d`, lowercase, as Bytes names its files), so their version must be one o
 
 The `ingest_archive_sync` sensor (stopped by default; start it under Automation) reports archives
 in `edm-recipes/ingest/datasets/` that an ingest asset has no materialization for, with
-`source: archive_sync` in the metadata. Each tick checks the next 25 templates, round-robin. To
+`source: archive_sync` in the metadata. The runner has the version catalog, so each tick checks
+every template from one catalog query: materialize `version_catalog` after uploading an archive by
+hand. (Without `DCPY_CATALOG_PG_URL`, each tick lists the store for the next 25, round-robin.) To
 try it, upload a fake archive for a template Dagster never ran:
 
 ```bash
@@ -121,6 +124,21 @@ svc = BlobServiceClient(
 for b in svc.get_container_client('edm-recipes').list_blobs():
     print(b.name)
 "
+```
+
+### Version catalog
+
+The runner's `DCPY_CATALOG_PG_URL` points at the `de_apps` database (role and password
+`de_apps`), created by `postgres-init/01-de-apps.sql`: at first init, and by `db-init` on every
+`up`, so an older volume gets it too. As on Azure, `public` there isn't writable by the owner.
+Materialize `version_catalog` (group `catalog`) to fill it from `edm-recipes/ingest/datasets/`;
+ingest runs add their own archives as they go. To look:
+
+```bash
+docker compose -f apps/azure-local/docker-compose.yml exec postgres psql -U de_apps -d de_apps \
+  -c "select key, version, is_latest, file_types, archived_at from catalog.versions order by 1, 2"
+docker compose -f apps/azure-local/docker-compose.yml exec de-dagster-runner \
+  python -m dcpy connectors catalog show --key dcp_ct2020
 ```
 
 Dagster's runs and event logs are in Postgres:
