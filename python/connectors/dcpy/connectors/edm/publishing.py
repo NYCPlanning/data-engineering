@@ -91,7 +91,7 @@ def get_version(product_key: ProductKey) -> str:
 
 
 # TODO: publishing connector refactor
-# Used in: admin/ops/setup_dev_bucket.py
+# Used in: apps/qa/src/pages/gru/helpers.py
 # Replace with: published.get_latest_version(product)
 # Search for: "publishing.get_latest_version"
 def get_latest_version(product: str) -> str | None:
@@ -214,28 +214,6 @@ def get_previous_version(
 # Search for: "publishing.get_filenames"
 def get_filenames(product_key: ProductKey) -> set[str]:
     return s3.get_filenames(_bucket(), product_key.path)
-
-
-# TODO: publishing connector refactor
-# Used in: admin/ops/setup_dev_bucket.py
-# Replace with: published.get_source_data_versions(product, version)
-# Search for: "publishing.get_source_data_versions"
-def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
-    """Given product name, gets source data versions of published version"""
-    source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
-    source_data_versions.rename(
-        columns={
-            "schema_name": "datalibrary_name",
-            "v": "version",
-        },
-        errors="raise",
-        inplace=True,
-    )
-    source_data_versions.sort_values(
-        by=["datalibrary_name"], ascending=True
-    ).reset_index(drop=True, inplace=True)
-    source_data_versions.set_index("datalibrary_name", inplace=True)
-    return source_data_versions
 
 
 def generate_metadata() -> dict[str, str]:

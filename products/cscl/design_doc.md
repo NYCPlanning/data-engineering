@@ -80,8 +80,8 @@ Until the pipeline can pull from the CSCL database itself, GR exports the ETL Wo
 1. GR exports the ETL Working GDB from CSCL and zips it.
 2. The zip goes to `edm-private/qa_app/inbox/dcp_cscl_gdb/{version}/ETL Working GDB.gdb.zip`, uploaded with an S3 client. At ~800 MB it's too big to upload through the app.
 3. **Ingest**: the QA app's Inbox Ingest page (or the Ingest Single Dataset workflow) ingests `dcp_cscl_gdb` from that key and archives it to `edm-recipes`, tagged `latest`.
-4. **Build**: the QA app's CSCL Builds page dispatches the CSCL build for the version. The build loads the GDB into its DuckDB database, runs dbt, packages the outputs and uploads them to `edm-publishing` under `db-cscl/build/{build name}/`.
-5. GR reviews run status and outputs on the CSCL Builds page, and diffs on the CSCL QA page.
+4. **Build**: the Build a Dataset workflow (`build.yml`) runs the CSCL build for the version. The build loads the GDB into its DuckDB database, runs dbt, packages the outputs and uploads them to `edm-publishing` under `db-cscl/build/{build name}/`.
+5. GR reviews the outputs and diffs on the QA app's CSCL page.
 
 ### Release inputs
 
