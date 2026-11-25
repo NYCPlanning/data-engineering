@@ -218,9 +218,10 @@ def ingest_archive_sync(context: SensorEvaluationContext):
     template_ids = sorted(templates)
     archived = None
     if catalog_configured():
-        batch, next_index = next_batch(
-            template_ids, context.cursor, _batch_size(len(template_ids), True)
-        )
+        size = _batch_size(len(template_ids), True)
+        # A whole pass per tick starts at the top, whatever a store-listing tick left.
+        cursor = context.cursor if size < len(template_ids) else None
+        batch, next_index = next_batch(template_ids, cursor, size)
         batch_templates = [templates[t] for t in batch]
         try:
             archived = list_archived_versions_from_catalog(batch_templates)

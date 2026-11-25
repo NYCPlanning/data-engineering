@@ -274,7 +274,10 @@ def test_sensor_reads_catalog_for_all_templates(instance, monkeypatch):
         raise AssertionError("listed the store")
 
     monkeypatch.setattr(sensors, "list_archived_versions", no_store)
-    result = sensors.ingest_archive_sync(build_sensor_context(instance=instance))
+    # a cursor left by a store-listing tick doesn't matter
+    result = sensors.ingest_archive_sync(
+        build_sensor_context(instance=instance, cursor="2")
+    )
     assert result.cursor == "0"  # every template in one tick
     assert _reported(result) == {
         ("ingest_bpl_libraries", "20260101"),
