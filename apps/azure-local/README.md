@@ -60,13 +60,42 @@ docker compose -f apps/azure-local/docker-compose.yml ps    # wait for de-dagste
 The webserver can come up before the runner; it shows the `data-engineering` location as failed
 until the runner answers, then reloads it on its own.
 
-Launch an ingest (registers the version in the `ingest_version` dynamic partitions and launches
-`ingest_<template>` with `push: true`, `latest: true`, then waits for the run):
+Launch an ingest (for a template with a dynamic partitions def, registers the version in
+`ingest_<template>` first; then launches `ingest_<template>` with `push: true`, `latest: true` and
+waits for the run):
 
 ```bash
 python apps/azure-local/launch_ingest.py bpl_libraries                 # version defaults to today
 python apps/azure-local/launch_ingest.py bpl_libraries --version 20261124 --no-latest
+python apps/azure-local/launch_ingest.py dcp_ct2020 --version 26c      # a static quarterly key
 ```
+
+Templates with `version_schedule: geosupport_quarterly` share static keys (`15a` through next
+year's `d`, lowercase, as Bytes names its files), so their version must be one of them.
+
+### Archives Dagster didn't write
+
+The `ingest_archive_sync` sensor (stopped by default; start it under Automation) reports archives
+in `edm-recipes/ingest/datasets/` that an ingest asset has no materialization for, with
+`source: archive_sync` in the metadata. Each tick checks the next 25 templates, round-robin. To
+try it, upload a fake archive for a template Dagster never ran:
+
+```bash
+python -c "
+import boto3
+s3 = boto3.client('s3', endpoint_url='http://127.0.0.1:17070', region_name='us-east-1',
+                  aws_access_key_id='local', aws_secret_access_key='local-secret')
+for name in ['dcp_nta2020.parquet', 'config.json']:
+    s3.put_object(Bucket='edm-recipes', Key=f'ingest/datasets/dcp_nta2020/26b/{name}', Body=b'{}')
+"
+```
+
+A version counts once its `config.json` is there. `latest` and `<version>_library` aren't
+versions, and a quarterly template's archive that isn't a key (`26B`, say) is logged and skipped.
+
+A tick that only reports materializations still shows as skipped ("empty result"): it started no
+runs. Its log is written on the runner (`$DAGSTER_HOME/storage/__repository__/ingest_archive_sync/`),
+since the sensor is evaluated in the code server.
 
 Check what landed, through the gateway:
 

@@ -92,6 +92,14 @@ Without `DAGSTER_CODE_SERVER_HOST`, `dagster.sh` keeps loading `workspace.yaml` 
 as two locations, code servers and runs in the same container). Local compose and the droplet work
 that way.
 
+Ingest partitions: templates with `version_schedule: geosupport_quarterly` share static keys
+(`15a` through next year's `d`); every other template has its own dynamic partitions def,
+`ingest_<template>`. The `ingest_archive_sync` sensor (stopped by default) reports archives already
+in `edm-recipes/ingest/datasets/` as materialized partitions, for archives Dagster didn't write,
+such as the bulk copy from DigitalOcean. Turn it on under Automation to catch up, and off after a
+full pass (about 11 ticks for 275 templates at the defaults). It runs in the runner's code server,
+so it uses the runner's S3 env.
+
 Instance storage (runs, event logs, schedules) goes to Postgres when `DAGSTER_PG_URL` is set: both
 entrypoints copy `apps/dagster/dagster.yaml` into `DAGSTER_HOME`. Without it, Dagster falls back to
 SQLite on container disk, which every new revision wipes. Both apps need it: the run workers on the
@@ -131,6 +139,7 @@ Env vars for `de-dagster-runner` (what ingest reads; builds also need `BUILD_ENG
 | `AZ_S3_ENDPOINT`, `AZ_S3_ACCESS_KEY_ID`, `AZ_S3_SECRET_ACCESS_KEY` | plain / secret, optional | registers the `az.*` connectors; only needed when one process uses both stores |
 | `DCPY_LIFECYCLE_DATA_DIR` | plain, optional | local scratch for runs; defaults to `.lifecycle/` in the working directory |
 | `DCPY_KEEP_STAGING` | plain, optional | `true` keeps each ingest run's staging dir (`<data dir>/ingest/<template>/<partition>/<run_id>`) for debugging; by default a pushing run deletes it when it ends, pass or fail |
+| `DAGSTER_INGEST_ARCHIVE_SYNC_INTERVAL_SECONDS`, `DAGSTER_INGEST_ARCHIVE_SYNC_BATCH_SIZE` | plain, optional | tick interval (default 60) and templates per tick (default 25) for the `ingest_archive_sync` sensor; see below |
 | `SOCRATA_USER`, `SOCRATA_PASSWORD` | secret, optional | Socrata sources work anonymously, rate-limited |
 | `AXWAY_SFTP_USER`, `AXWAY_SFTP_PASSWORD` | secret | `axway` sources (DOF PLUTO inputs) |
 | `SFTP_HOST`, `SFTP_USER`, `SFTP_PRIVATE_KEY_PATH` | secret | `ginger` SFTP sources; the key is a file path, so mount it |
