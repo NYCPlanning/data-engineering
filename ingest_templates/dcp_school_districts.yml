@@ -1,4 +1,5 @@
 id: dcp_school_districts
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC School Districts

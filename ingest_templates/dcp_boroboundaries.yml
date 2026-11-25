@@ -1,4 +1,5 @@
 id: dcp_boroboundaries
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC Boroughs

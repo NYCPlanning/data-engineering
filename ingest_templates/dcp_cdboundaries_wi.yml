@@ -1,4 +1,5 @@
 id: dcp_cdboundaries_wi
+version_schedule: geosupport_quarterly
 
 attributes:
   name: NYC Community Districts

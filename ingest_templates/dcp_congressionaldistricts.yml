@@ -1,4 +1,5 @@
 id: dcp_congressionaldistricts
+version_schedule: geosupport_quarterly
 
 attributes:
   name: U.S. Congressional Districts (Clipped to Shoreline)
