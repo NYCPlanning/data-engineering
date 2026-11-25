@@ -193,3 +193,94 @@ Things to know:
 `ace-azu-e2-dcp-de-nonprod`, in dependency order. Other teams' apps in the environment are left
 alone. With `--postgres` it also stops or starts the Flexible Server. Azure restarts a stopped
 server by itself after 7 days.
+
+## Migrating data from DigitalOcean
+
+`admin/ops/migrate_do_to_azure.py` copies DigitalOcean Spaces into Azure Blob through the gateway
+and remaps the layout. Every byte passes through the machine running it, from DO down and to the
+gateway up.
+
+| DigitalOcean | Azure | `--area` |
+|---|---|---|
+| `edm-recipes/datasets/<id>/<version>/` | `edm-recipes/ingest/datasets/<id>/<version>/` | `datasets` |
+| `edm-recipes/raw/<id>/<timestamp>/` | `edm-recipes/ingest/raw/<id>/<timestamp>/` | `raw` |
+| `edm-private/datasets/<id>/<version>/` | `edm-recipes/ingest/datasets/<id>/<version>/` | `private` |
+| `edm-private/<key>`, for keys a template's `bucket: edm-private` source reads | `edm-recipes/inbox/<key>` | `inbox` |
+| `edm-recipes/inbox/<key>`, for keys a template reads | `edm-recipes/inbox/<key>` | `recipes_inbox` |
+| `edm-publishing/...` | `edm-publishing/...` | `publishing` |
+
+`ingest` and `inbox` come from `AZ_RECIPES_BUCKET_ROOT_FOLDER` / `RECIPES_BUCKET_ROOT_FOLDER` and
+`INBOX_ROOT_FOLDER`, defaulting to those values. The mapping is `mapping()` in the script. Inbox
+files are matched against the templates' `key`s; a dry run lists the files under those prefixes
+that no template reads, and `--include-unmatched-inbox` copies them too.
+
+Selection: `--area` (repeatable, default all), `--dataset` (repeatable id or glob; the template id
+for inbox areas, the product for publishing) or `--datasets-file` (one per line), `--latest-only`
+(each dataset's `latest/` and the version its `config.json` names; for raw, the newest timestamp),
+and `--versions-since YYYYMMDD` (version folders with an object DigitalOcean last modified on or
+after that day).
+
+What the copy does:
+- Dry run unless `--execute`. The dry run prints counts and bytes per area and dataset, sample key
+  mappings, and how long the copy takes at a few rates.
+- An object already at the destination with the same size is skipped, so rerunning after an
+  interruption picks up where it stopped. A different size is a conflict: reported, and left alone
+  unless `--overwrite`.
+- Metadata names are rewritten for Azure (`date-created` to `date_created`, `run-url` to
+  `run_url`). An object without `date_created` gets the DO LastModified, so archive dates are kept.
+  Content-Type is kept, ACLs aren't. Each copy carries `source_etag`, the DO ETag, which
+  `--verify` checks.
+- Objects stream through; nothing is held whole in memory. Objects over `--part-size-mb` (16) go
+  up multipart, 16 MB per part, well inside the gateway's 240 s ingress timeout. `--workers` (8)
+  objects at once, `--threads-per-file` (4) parts at once each. Memory is roughly
+  workers x (threads + 1) x part size, about 0.6 GB at the defaults.
+
+### On the day
+
+1. In the portal, on storage account `dcpdenonprodblob` > Networking: public network access
+   "Enabled from selected virtual networks and IP addresses", and add the machine's public IP
+   under Firewall. Leave "Allow Blob anonymous access" off.
+2. Env, from a CityNet machine. DCPY_S3_ENDPOINT_DENYLIST must not include DigitalOcean; the script
+   refuses to start if it does.
+
+   ```bash
+   export AWS_S3_ENDPOINT=https://nyc3.digitaloceanspaces.com   # DigitalOcean, the source
+   export AWS_ACCESS_KEY_ID=... AWS_SECRET_ACCESS_KEY=...
+   export AZ_S3_ENDPOINT=https://de-blob-gateway.itd-data.dcp.nycnet
+   export AZ_S3_ACCESS_KEY_ID=... AZ_S3_SECRET_ACCESS_KEY=...   # the gateway's keys
+   export AZ_S3_CA_BUNDLE=/path/to/bundle.pem   # only if the city CA isn't trusted already
+   unset DCPY_S3_ENDPOINT_DENYLIST
+   ```
+
+   The gateway's certificate is from a city CA. A city laptop's OS may trust it while Python
+   doesn't: if the dry run fails with `CERTIFICATE_VERIFY_FAILED`, export the city root CA, append
+   it to a copy of certifi's bundle (`python -c "import certifi; print(certifi.where())"`), and
+   point `AZ_S3_CA_BUNDLE` at that copy. It's only used for the gateway.
+3. Dry run, then execute the same selection:
+
+   ```bash
+   python admin/ops/migrate_do_to_azure.py -a datasets -a private -a inbox -a recipes_inbox \
+     --datasets-file ids.txt
+   python admin/ops/migrate_do_to_azure.py -a datasets -a private -a inbox -a recipes_inbox \
+     --datasets-file ids.txt --execute 2>&1 | tee migrate.log
+   ```
+
+   Progress (objects, bytes, rate, time left) is logged every 30 s. Failed objects are listed at
+   the end and the exit code is 1; rerun the same command to retry them.
+4. Duration: about 500 GB. At 25 MB/s that's about 6 hours, at 50 MB/s about 3. The machine's
+   link is the limit; check the rate in the first few minutes and raise `--workers` if it's low
+   and the link isn't saturated. Run it in `tmux` or `screen`, or somewhere the laptop won't sleep.
+5. Verify: rerun the dry run with `--verify`. Expect `copy 0` for every area, no conflicts, and no
+   `unverified` (objects at the destination this script didn't copy). Then spot-check from the
+   runner, e.g. `recipes.get_all_versions("<id>")` and `recipes.get_archive_date(...)` from
+   `dcpy.connectors.edm.recipes`, and build a recipe that reads a copied dataset.
+6. Revert step 1: public network access back to "Disabled", and remove the IP rule.
+
+Writing straight to Blob with the account key (`azure-storage-blob`, no gateway) would avoid the
+gateway's ingress timeout and the city CA, but needs that package and different code; the script
+doesn't do it.
+
+To try it locally, run the `apps/azure-local/` stack, create `do-recipes` etc. in the local gateway
+as a stand-in for DO, and pass `--source-recipes-bucket do-recipes` (and the private and publishing
+ones), with `AWS_S3_ENDPOINT` and `AZ_S3_ENDPOINT` both the gateway under two different hostnames.
+Tests: `pytest admin/ops/tests`.
