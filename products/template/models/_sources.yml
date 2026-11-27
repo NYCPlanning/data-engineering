@@ -87,3 +87,22 @@ sources:
               - not_null::
                   config:
                     severity: warn
+      
+      - name: moo_public_restrooms
+        columns:
+          - name: facility_name
+            tests:
+              - not_null
+          - name: geom
+            tests:
+              - not_null
+              
+      - name: dcp_boroboundaries_wi
+        columns:
+          - name: boroname
+            tests:
+              - unique
+              - not_null
+          - name: wkb_geometry
+            tests:
+              - not_null

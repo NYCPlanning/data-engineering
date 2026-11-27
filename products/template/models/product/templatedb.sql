@@ -18,6 +18,8 @@ green_spaces AS (SELECT * FROM {{ ref('green_spaces') }}),
 
 historic_landmarks AS (SELECT * FROM {{ ref('historic_landmarks') }}),
 
+restrooms AS (SELECT * FROM {{ ref('restrooms') }}),
+
 all_records AS (
     SELECT
         library_name AS place_name,
@@ -51,6 +53,17 @@ all_records AS (
         NULL AS nearest_park_distance_ft,
         wkb_geometry
     FROM historic_landmarks
+    UNION ALL
+    SELECT
+        restroom_name AS place_name,
+        'restroom' AS place_type,
+        borough,
+        NULL AS bbl,
+        NULL AS address,
+        NULL AS nearest_park,
+        NULL AS nearest_park_distance_ft,
+        wkb_geometry
+    FROM restrooms
 ),
 
 standardized_geometry_types AS (

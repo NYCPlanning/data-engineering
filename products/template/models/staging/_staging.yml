@@ -61,3 +61,26 @@ models:
       - name: borough_name_short
       - name: bbl
       - name: wkb_geometry
+
+  - name: stg_moo_public_restrooms
+    description: "NYC public restrooms (Mayor's Office of Operations)"
+    columns:
+      - name: restroom_name
+        tests:
+          - not_null
+      - name: status
+        tests:
+          - not_null
+      - name: wkb_geometry
+        tests:
+          - not_null
+
+  - name: stg_dcp_boroboundaries_wi
+    description: "Borough boundaries, water included"
+    columns:
+      - name: borough
+        tests:
+          - not_null
+      - name: wkb_geometry
+        tests:
+          - not_null

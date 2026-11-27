@@ -17,6 +17,9 @@ inputs:
       # Newer versions put every landmark at the same point (-74, 41), in Socrata's own data.
       # Unpin once the source coordinates are fixed.
       version: "20260618"
+    - name: moo_public_restrooms
+      version: "20261104"
+    - name: dcp_boroboundaries_wi
     - name: lion.borough_boundaries
       source: bytes
       file_type: shapefile

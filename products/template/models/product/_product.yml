@@ -40,5 +40,6 @@ models:
           name: templatedb_unique_compound_key
           combination_of_columns:
             - place_name
+            - place_type
             - borough
             - bbl
