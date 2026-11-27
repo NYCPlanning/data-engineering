@@ -40,7 +40,13 @@ geom_sources AS (
         facdb_base_geom.geom_bl,
         facdb_base_geom.geom_bn,
         ST_CENTROID(dcp_mappluto_wi.geom) AS geom_pluto,
-        ST_CENTROID(doitt_buildingfootprints.wkb_geometry) AS geom_bldg,
+        -- a courtyard or L-shaped building's centroid can fall outside it
+        (CASE
+            WHEN
+                ST_INTERSECTS(doitt_buildingfootprints.wkb_geometry, ST_CENTROID(doitt_buildingfootprints.wkb_geometry))
+                THEN ST_CENTROID(doitt_buildingfootprints.wkb_geometry)
+            ELSE ST_POINTONSURFACE(doitt_buildingfootprints.wkb_geometry)
+        END) AS geom_bldg,
         (CASE WHEN facdb_base_geom.wkb_geometry IS NOT null THEN 'wkb_geometry' END) AS source_wkb,
         (CASE WHEN geom_1b IS NOT null THEN '1b' END) AS source_1b,
         (CASE WHEN geom_bl IS NOT null THEN 'bl' END) AS source_bl,
