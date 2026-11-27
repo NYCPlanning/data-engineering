@@ -433,7 +433,11 @@ WITH _dcp_colp_tmp AS (
         NULL AS capacity,
         NULL AS captype,
         st_transform(geom::geometry, 4326) AS wkb_geometry,
-        NULL AS geo_1b,
+        -- COLP places every record at a single point per lot, so the address geocode picks out the
+        -- building. Only trust it when it lands on the record's own lot, since some addresses don't.
+        (CASE
+            WHEN geo_1b::jsonb -> 'result' ->> 'geo_bbl' = left(bbl, 10) THEN geo_1b
+        END) AS geo_1b,
         NULL AS geo_bl,
         NULL AS geo_bn
     FROM dcp_colp
