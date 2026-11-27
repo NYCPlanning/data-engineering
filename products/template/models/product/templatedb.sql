@@ -2,7 +2,17 @@
 
 -- TODO determine the CD of each place
 WITH
-libraries AS (SELECT * FROM {{ ref('libraries') }}),
+libraries AS (
+    SELECT
+        libraries.*,
+        nearest_park.nearest_park,
+        nearest_park.nearest_park_distance_ft
+    FROM {{ ref('libraries') }} AS libraries
+    LEFT JOIN {{ ref('libraries_nearest_park') }} AS nearest_park
+        ON
+            libraries.library_name = nearest_park.library_name
+            AND libraries.borough = nearest_park.borough
+),
 
 green_spaces AS (SELECT * FROM {{ ref('green_spaces') }}),
 
@@ -15,9 +25,10 @@ all_records AS (
         borough,
         NULL AS bbl,
         address,
+        nearest_park,
+        nearest_park_distance_ft,
         wkb_geometry
-    FROM
-        libraries
+    FROM libraries
     UNION ALL
     SELECT
         space_name AS place_name,
@@ -25,6 +36,8 @@ all_records AS (
         borough,
         NULL AS bbl,
         NULL AS address,
+        NULL AS nearest_park,
+        NULL AS nearest_park_distance_ft,
         wkb_geometry
     FROM green_spaces
     UNION ALL
@@ -34,6 +47,8 @@ all_records AS (
         borough,
         bbl,
         NULL AS address,
+        NULL AS nearest_park,
+        NULL AS nearest_park_distance_ft,
         wkb_geometry
     FROM historic_landmarks
 ),
@@ -45,6 +60,8 @@ standardized_geometry_types AS (
         borough,
         bbl,
         address,
+        nearest_park,
+        nearest_park_distance_ft,
         CASE
             WHEN ST_GEOMETRYTYPE(wkb_geometry) = 'ST_Polygon' THEN ST_MULTI(wkb_geometry)
             WHEN ST_ISEMPTY(wkb_geometry) THEN NULL
