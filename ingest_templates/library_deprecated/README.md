@@ -6,10 +6,11 @@ source definition is still findable if one turns out to be wanted.
 Nothing reads this folder. `glob("*.yml")` on `ingest_templates/` is not recursive, so these are
 invisible to ingest, and the `library` package that read them is gone.
 
-Six reasons a template ended up here:
+Five reasons a template ended up here:
 
 - **Superseded by a rename.** `dob_jobapplications` and `dob_permitissuance` were migrated as
-  `dob_bis_applications` and `dob_bis_permits`.
+  `dob_bis_applications` and `dob_bis_permits`. `usdot_ports` (facilities) is replaced by
+  `usace_docks`, which reads USACE's public Docks layer.
 - **No consumer.** No product recipe, build script, or query references the dataset. Some are
   referenced only from workflows under `.github/workflows/archive/`, or from lines that are
   commented out. `council_members` had an ingest template too, and its Socrata source has since
@@ -22,9 +23,6 @@ Six reasons a template ended up here:
 - **Archived once, never refreshed.** `dcp_dot_trafficinjuries` (edde, 2009 to 2020) and
   `dob_jobapplications_parkingspaces` (developments, a one-time DOB export) are read only at pinned
   versions that are already archived. The traffic csvs came from a local upload that wasn't kept.
-- **Blocked.** `usdot_ports` (facilities) now needs an API token, see
-  [#1326](https://github.com/NYCPlanning/data-engineering/issues/1326). Facilities reads its last
-  library archive.
 - **Source retired.** `nysdec_freshwater_wetlands_checkzones` (green_fast_track) came from a layer of
   NYS's State Regulated Freshwater Wetlands service, which is gone. Its replacement,
   Previously Mapped Freshwater Wetlands, has no checkzone layer. green_fast_track reads the

@@ -354,6 +354,8 @@ INTO _moeo_socialservicesitelocations
 FROM joined
 WHERE
     uid IN (SELECT uid FROM tmp)
-    AND program_name !~* 'Home Delivered Meals|senior center|CONDOM DISTRIBUTION SERVICES|GROWING UP NYC INITIATIVE SUPPORT SERVICES|PLANNING AND EVALUATION [BASE]|TO BE DETERMINED - UNKNOWN';
+    AND program_name !~* 'Home Delivered Meals|senior center|CONDOM DISTRIBUTION SERVICES|GROWING UP NYC INITIATIVE SUPPORT SERVICES|PLANNING AND EVALUATION [BASE]|TO BE DETERMINED - UNKNOWN'
+    -- dycd_service_sites has current data for DYCD's programs, except council awards
+    AND (agency_name != 'DYCD' OR program_name = 'City Council Awards');
 
 CALL APPEND_TO_FACDB_BASE('_moeo_socialservicesitelocations');

@@ -75,7 +75,7 @@ To see if a dataset needs to be uploaded, check date last updated in open data/b
 - [ ] sbs_workforce1 https://data.cityofnewyork.us/dataset/Center-Service-Locations/6smc-7mk6
 - [ ] usdot_airports https://geodata.bts.gov/datasets/aviation-facilities/explore?location=50.755910%2C-117.686932%2C22.58&showTable=true
       Ingest extracts from a different link. This one is a reference for the last updated date.
-- [ ] usdot_ports https://data-usdot.opendata.arcgis.com/datasets/usdot::docks/about
+- [ ] usace_docks https://services7.arcgis.com/n1YM8pTrFmm7L4hs/ArcGIS/rest/services/Docks/FeatureServer/0
 - [ ] nysdec_lands https://data.gis.ny.gov/datasets/84b4cce8a8974c31a1c5584540f3aaae_0/about
 - [ ] usnps_parks https://public-nps.opendata.arcgis.com/datasets/nps::nps-boundary-1/about
 
