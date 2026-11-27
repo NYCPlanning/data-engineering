@@ -148,6 +148,15 @@ class TestGetLayer:
         # one call to get ids, three calls to get data
         assert post.call_count == 4
 
+    def test_get_layer_filters(self, post: MagicMock):
+        arcfs.get_layer(
+            MULTIPLE_LAYER, crs=1, where="STATE = 'NY'", bbox=[-74.3, 40.5, -73.7, 40.9]
+        )
+        ids_query = post.call_args_list[0].kwargs["data"]
+        assert ids_query["where"] == "STATE = 'NY'"
+        assert ids_query["geometry"] == "-74.3,40.5,-73.7,40.9"
+        assert ids_query["geometryType"] == "esriGeometryEnvelope"
+
     def test_get_layer_sorts_features_by_object_id(self, post: MagicMock):
         for chunk_size in (1, 2, 100):
             features = arcfs.get_layer(MULTIPLE_LAYER, crs=1, chunk_size=chunk_size)[

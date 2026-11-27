@@ -11,6 +11,7 @@ class Server(StrEnum):
     nyc_maphub = "nyc_maphub"
     nysdec = "nysdec"
     nys_parks = "nys_parks"
+    usace = "usace"
     us_fws = "us_fws"
 
 
@@ -23,6 +24,8 @@ servers = {
     "nyc_maphub": {"id": "yG5s3afENB5iO9fj", "subdomain": "services6"},
     "nysdec": {"id": "DZHaqZm9cxOD4CWM", "subdomain": "services6"},
     "nys_parks": {"id": "1xFZPtKn1wKC6POA"},
+    # U.S. Army Corps of Engineers
+    "usace": {"id": "n1YM8pTrFmm7L4hs", "subdomain": "services7"},
     "us_fws": {"id": "QVENGdaPbd4LUkLV"},
 }
 
