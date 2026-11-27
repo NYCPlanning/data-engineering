@@ -49,7 +49,7 @@ models:
             - landmark_name
             - bbl
             - wkb_geometry
-            
+
   - name: restrooms
     description: "Operational public restrooms in NYC, with borough"
     columns:
@@ -69,4 +69,4 @@ models:
           name: restrooms_unique_compound_key
           combination_of_columns:
             - restroom_name
-            - wkb_geometry
+            - borough
