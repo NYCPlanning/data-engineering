@@ -41,7 +41,7 @@ jobs:
 
       - name: Load Secrets
         id: op-load-secret
-        uses: 1password/load-secrets-action@v4
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: false
         env:
@@ -54,7 +54,7 @@ jobs:
           echo "${{ steps.op-load-secret.outputs.KNOWN_HOSTS }}" > ~/.ssh/known_hosts
 
       - name: Load Secrets to Env
-        uses: 1password/load-secrets-action@v4
+        uses: 1password/load-secrets-action@v5
         with:
           export-env: true
         env:
