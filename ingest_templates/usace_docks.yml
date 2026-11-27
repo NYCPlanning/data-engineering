@@ -1,0 +1,20 @@
+id: usace_docks
+
+attributes:
+  name: USACE Navigation Facilities (Docks)
+  description: >-
+    Docks, anchorages, and other ports-and-waterway facilities from the U.S. Army Corps of Engineers.
+    Only facilities in a box around NYC are pulled, so this includes some in New Jersey, Nassau, and Westchester.
+  url: https://services7.arcgis.com/n1YM8pTrFmm7L4hs/ArcGIS/rest/services/Docks/FeatureServer/0
+
+ingestion:
+  source:
+    type: arcgis_feature_server
+    server: usace
+    dataset: Docks
+    layer_name: Navigation Facilities (Dock)
+    bbox: [-74.26, 40.49, -73.69, 40.92]
+  file_format:
+    type: geojson
+
+columns: []

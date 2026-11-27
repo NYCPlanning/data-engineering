@@ -133,15 +133,15 @@ inputs:
     preprocessor:
       module: facdb.pipelines
       function: dispatch
+  - name: usace_docks
+    preprocessor:
+      module: facdb.pipelines
+      function: dispatch
   - name: uscourts_courts
     preprocessor:
       module: facdb.pipelines
       function: dispatch
   - name: usdot_airports
-    preprocessor:
-      module: facdb.pipelines
-      function: dispatch
-  - name: usdot_ports
     preprocessor:
       module: facdb.pipelines
       function: dispatch

@@ -110,6 +110,10 @@ datasets:
     scripts:
       - sbs_workforce1.sql
 
+  - name: usace_docks
+    scripts:
+      - usace_docks.sql
+
   - name: uscourts_courts
     scripts:
       - uscourts_courts.sql
@@ -117,10 +121,6 @@ datasets:
   - name: usdot_airports
     scripts:
       - usdot_airports.sql
-
-  - name: usdot_ports
-    scripts:
-      - usdot_ports.sql
 
   - name: usnps_parks
     scripts:

@@ -770,10 +770,10 @@ def usdot_airports(df: pd.DataFrame):
     return df
 
 
-def usdot_ports(df: pd.DataFrame):
+def usace_docks(df: pd.DataFrame):
     df = df.loc[
-        (df.state_post == "NY")
-        & (df.county_nam.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])),
+        (df.state == "NY")
+        & (df.county_name.isin(["New York", "Kings", "Bronx", "Queens", "Richmond"])),
         :,
     ]
     df = sanitize_df(df)
