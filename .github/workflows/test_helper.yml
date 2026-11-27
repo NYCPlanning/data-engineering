@@ -345,7 +345,7 @@ jobs:
     # ("test.conftest") and crash - has to be one invocation per package instead.
     - name: dcpy main pytests
       run: |
-        for pkg in connectors data geospatial lifecycle product-metadata utils; do
+        for pkg in connectors data geospatial lifecycle product-metadata services utils; do
           sync_extra=()
           if [[ "$pkg" == "connectors" || "$pkg" == "product-metadata" ]]; then
             sync_extra=(--package dcpy-lifecycle)
@@ -362,8 +362,8 @@ jobs:
     # One flagged upload per package, rather than a single combined report, so Codecov
     # shows both per-package coverage (e.g. "how much of dcpy-utils do dcpy-utils's own
     # tests cover") and an overall total (which it aggregates across flags automatically).
-    # (Steps can't use `strategy.matrix` - that's job-level only - hence six explicit
-    # copies instead of a loop.) No CODECOV_TOKEN, so this job stays secret-free: tokenless
+    # (Steps can't use `strategy.matrix` - that's job-level only - hence one explicit
+    # copy per package instead of a loop.) No CODECOV_TOKEN, so this job stays secret-free: tokenless
     # uploads work because token authentication for public repos is turned off in the
     # NYCPlanning Codecov org settings. disable_search keeps each flag to its own file,
     # since the action otherwise uploads every coverage file it finds.
@@ -405,6 +405,14 @@ jobs:
         files: coverage-product-metadata.xml
         disable_search: true
         flags: dcpy-product-metadata
+        verbose: true
+
+    - name: Upload services coverage to Codecov
+      uses: codecov/codecov-action@v7
+      with:
+        files: coverage-services.xml
+        disable_search: true
+        flags: dcpy-services
         verbose: true
 
     - name: Upload utils coverage to Codecov

@@ -58,6 +58,15 @@ def ensure_no_callouts():
     socket.socket = guard
 
 
+@pytest.fixture(autouse=True)
+def no_event_handlers(monkeypatch):
+    """No installed dcpy.lifecycle.events handlers (e.g. dcpy-services' catalog, in a
+    whole-workspace venv) run in unit tests. Tests that want one set events._handlers."""
+    from dcpy.lifecycle import events
+
+    monkeypatch.setattr(events, "_handlers", [])
+
+
 @pytest.fixture(scope="function")
 def resources_path():
     return RESOURCES
@@ -76,8 +85,10 @@ def package_and_dist_test_resources():
 @pytest.fixture(scope="function")
 def aws_credentials():
     """Mocked AWS Credentials for moto."""
-    if "AWS_S3_ENDPOINT" in os.environ:
-        os.environ.pop("AWS_S3_ENDPOINT")
+    # Where moto intercepts. Region pinned so a local nyc3 config doesn't leak in.
+    os.environ["AWS_S3_ENDPOINT"] = "https://s3.amazonaws.com"
+    os.environ["AWS_DEFAULT_REGION"] = "us-east-1"
+    os.environ.pop("DCPY_S3_ENDPOINT_DENYLIST", None)
     os.environ["AWS_ACCESS_KEY_ID"] = "testing"
     os.environ["AWS_SECRET_ACCESS_KEY"] = "testing"
 

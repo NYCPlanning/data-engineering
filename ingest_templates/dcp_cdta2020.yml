@@ -1,4 +1,5 @@
 id: dcp_cdta2020
+version_schedule: geosupport_quarterly
 
 attributes:
   name: DCP Community District Tabulation Area Boundaries 2020

@@ -5,6 +5,7 @@ import geopandas as gpd
 import pytest
 
 from dcpy.connectors.ingest_datastore import Connector as IngestDatastoreConnector
+from dcpy.lifecycle import events
 from dcpy.lifecycle.ingest import connectors, run
 from dcpy.lifecycle.ingest.models import ArchivedDataSource, IngestedDataset
 from dcpy.utils import metadata
@@ -174,6 +175,40 @@ class TestArchiveTransformedDatasets:
                 run.archive_transformed_datasets(
                     staging_dir=tmp_path / ".staging", latest=True
                 )
+
+    def test_emits_datasets_archived(self, tmp_path, run_process_datasets, monkeypatch):
+        seen: list = []
+        monkeypatch.setattr(events, "_handlers", [("fake", seen.append)])
+        run.archive_transformed_datasets(staging_dir=tmp_path / ".staging", latest=True)
+        [event] = seen
+        assert isinstance(event, events.DatasetsArchived)
+        assert event.store == "edm.recipes.datasets" and event.latest
+        assert {(d.key, d.version) for d in event.datasets} == {
+            (ds.id, ds.version) for ds in run_process_datasets
+        }
+
+    def test_latest_only_still_emits(self, tmp_path, run_process_datasets, monkeypatch):
+        run.archive_transformed_datasets(
+            staging_dir=tmp_path / ".staging", latest=False
+        )
+        seen: list = []
+        monkeypatch.setattr(events, "_handlers", [("fake", seen.append)])
+        run.archive_transformed_datasets(staging_dir=tmp_path / ".staging", latest=True)
+        [event] = seen
+        assert event.latest and len(event.datasets) == len(run_process_datasets)
+
+    def test_nothing_archived_emits_nothing(
+        self, tmp_path, run_process_datasets, monkeypatch
+    ):
+        run.archive_transformed_datasets(
+            staging_dir=tmp_path / ".staging", latest=False
+        )
+        seen: list = []
+        monkeypatch.setattr(events, "_handlers", [("fake", seen.append)])
+        run.archive_transformed_datasets(
+            staging_dir=tmp_path / ".staging", latest=False
+        )
+        assert seen == []
 
 
 class TestIngest:

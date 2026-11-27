@@ -3,27 +3,17 @@
 This module provides functions for uploading planned recipes to blob storage.
 """
 
-from datetime import datetime
 from pathlib import Path
-
-import pytz
 
 from dcpy.connectors.edm.models import PlanKey
 from dcpy.lifecycle.builds.connector import get_plan_default_connector
-from dcpy.utils import git
+from dcpy.utils import s3_metadata
 from dcpy.utils.logging import logger
 
 
 def _generate_metadata() -> dict[str, str]:
     """Generates "standard" s3 metadata for our files"""
-    metadata = {
-        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
-    }
-    try:
-        metadata["commit"] = git.commit_hash()
-    except Exception:
-        pass  # No git repo or commit available
-    return metadata
+    return s3_metadata.standard()
 
 
 def upload(

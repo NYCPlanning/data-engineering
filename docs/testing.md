@@ -64,7 +64,7 @@ by design and isn't owned by any single one, so it lives as its own `apps/*` wor
 "app" in this repo's sense: a `package = false` project with its own `pyproject.toml`, own
 dependency list, and its own specific runtime/environment needs — same shape as `apps/qa`) rather
 than under `python/`. Its `pyproject.toml` declares exactly the dcpy-* packages it needs
-(`dcpy-connectors`, `dcpy-lifecycle[geo]`, `dcpy-utils`), so — despite spanning
+(`dcpy-connectors`, `dcpy-lifecycle[geo]`, `dcpy-services`, `dcpy-utils`), so — despite spanning
 packages — it gets a scoped sync just like the per-package unit suites, not the whole workspace.
 CI runs it in its own job (`pytest_dcpy_integration`, separate from the unit suite's `pytest_dcpy`
 — see [How CI runs the dcpy suite](#how-ci-runs-the-dcpy-suite)) inside the dev container stack
@@ -125,7 +125,7 @@ to real infra). Roughly:
 # lifecycle, and utils also need --extra geo: GDAL/geosupport-backed functionality (e.g.
 # dcpy.data.compare's spatial comparisons, dcpy.lifecycle.ingest.validate's gpd.GeoDataFrame
 # usage) lives behind each package's own optional "geo" extra rather than a hard dependency.
-for pkg in connectors data geospatial lifecycle product-metadata utils; do
+for pkg in connectors data geospatial lifecycle product-metadata services utils; do
   uv sync --package "dcpy-$pkg" [--package dcpy-lifecycle] [--extra geo]
   uv run --no-sync pytest "python/$pkg/test" --cov="python/$pkg" --cov-report="xml:coverage-$pkg.xml"
 done

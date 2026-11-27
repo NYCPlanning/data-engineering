@@ -1,4 +1,5 @@
 id: dcp_ct2020
+version_schedule: geosupport_quarterly
 
 attributes:
   name: Census Tracts for the 2020 US Census (Clipped to shoreline)

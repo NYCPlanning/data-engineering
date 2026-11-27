@@ -26,7 +26,6 @@ from __future__ import annotations
 import json
 import re
 from dataclasses import asdict
-from datetime import datetime
 from io import BytesIO
 from pathlib import Path
 from tempfile import TemporaryDirectory
@@ -35,7 +34,6 @@ from urllib.parse import urlencode, urljoin
 from zipfile import ZipFile
 
 import pandas as pd
-import pytz
 import typer
 import yaml
 
@@ -44,7 +42,6 @@ if TYPE_CHECKING:
 
 from dcpy.configuration import (
     BUILD_NAME,
-    CI,
     PUBLISHING_BUCKET,
 )
 from dcpy.connectors.edm.models import (
@@ -55,7 +52,7 @@ from dcpy.connectors.edm.models import (
 )
 from dcpy.connectors.registry import GenericConnector, VersionedConnector
 from dcpy.lifecycle.builds.models import BuildMetadata
-from dcpy.utils import git, s3, versions
+from dcpy.utils import s3, s3_metadata, versions
 from dcpy.utils.logging import logger
 
 
@@ -94,7 +91,7 @@ def get_version(product_key: ProductKey) -> str:
 
 
 # TODO: publishing connector refactor
-# Used in: admin/ops/setup_dev_bucket.py
+# Used in: apps/qa/src/pages/gru/helpers.py
 # Replace with: published.get_latest_version(product)
 # Search for: "publishing.get_latest_version"
 def get_latest_version(product: str) -> str | None:
@@ -219,37 +216,9 @@ def get_filenames(product_key: ProductKey) -> set[str]:
     return s3.get_filenames(_bucket(), product_key.path)
 
 
-# TODO: publishing connector refactor
-# Used in: admin/ops/setup_dev_bucket.py
-# Replace with: published.get_source_data_versions(product, version)
-# Search for: "publishing.get_source_data_versions"
-def get_source_data_versions(product_key: ProductKey) -> pd.DataFrame:
-    """Given product name, gets source data versions of published version"""
-    source_data_versions = read_csv(product_key, "source_data_versions.csv", dtype=str)
-    source_data_versions.rename(
-        columns={
-            "schema_name": "datalibrary_name",
-            "v": "version",
-        },
-        errors="raise",
-        inplace=True,
-    )
-    source_data_versions.sort_values(
-        by=["datalibrary_name"], ascending=True
-    ).reset_index(drop=True, inplace=True)
-    source_data_versions.set_index("datalibrary_name", inplace=True)
-    return source_data_versions
-
-
 def generate_metadata() -> dict[str, str]:
     """Generates "standard" s3 metadata for our files"""
-    metadata = {
-        "date-created": datetime.now(pytz.timezone("America/New_York")).isoformat()
-    }
-    metadata["commit"] = git.commit_hash()
-    if CI:
-        metadata["run-url"] = git.action_url()
-    return metadata
+    return s3_metadata.standard()
 
 
 def upload(
@@ -689,9 +658,9 @@ def publish_add_created_date(
         target,
         acl,
         max_files=max_files,
-        metadata={"date-created": old_metadata.last_modified.isoformat()},
+        metadata={s3_metadata.DATE_CREATED: old_metadata.last_modified.isoformat()},
     )
-    return {"date-created": old_metadata.last_modified.isoformat()}
+    return {s3_metadata.DATE_CREATED: old_metadata.last_modified.isoformat()}
 
 
 def get_data_directory_url(product_key: ProductKey) -> str:

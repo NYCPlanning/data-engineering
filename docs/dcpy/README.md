@@ -16,8 +16,9 @@ dcpy is layered — **a package imports only from its own layer or a lower one:*
    `dcpy-product-metadata`: may depend on `dcpy-utils` and (where declared) each
    other, must not depend on `dcpy-lifecycle`.
 3. **`dcpy-lifecycle`** — the stages (`ingest`, `builds`, `package`, `distribute`, `validate`),
-   their shared base, and cross-stage `scripts`; wires everything together, and is the only
-   package allowed to depend on all the others.
+   their shared base, and cross-stage `scripts`; wires everything together.
+4. **`dcpy-services`** — live services on top of lifecycle, e.g. the version catalog (Postgres).
+   Depends on lifecycle like the apps do; nothing in the layers below imports it.
 
 This hierarchy isn't just convention: each package
 declares its actual dcpy dependencies in its own `pyproject.toml`, so `uv sync --package dcpy-X`
@@ -56,6 +57,79 @@ the isolated per-package CI job and each package's `test/test_package_boundary.p
   build cycle (useful for QA/debugging).
 
 Full cloud inventory (apps, compute, Azure plans) is on the Cloud Infrastructure wiki page.
+
+### Which store a process uses
+
+Every S3 client resolves its endpoint through `dcpy.utils.s3.resolve_endpoint`. `AWS_S3_ENDPOINT`
+is required (no default), and a host on `DCPY_S3_ENDPOINT_DENYLIST` (comma-separated) is refused.
+
+Lifecycle stages find their stores by connector name in the registry
+(`dcpy.lifecycle.connector_registry`). Each default can be overridden by env var:
+
+| Env var | Default connector | Used for |
+|---|---|---|
+| `DCPY_INGEST_RAW_CONNECTOR` | `edm.recipes.raw_datasets` | ingest: raw archive |
+| `DCPY_INGEST_DATASETS_CONNECTOR` | `edm.recipes.datasets` | ingest: processed archive |
+| `DCPY_RECIPES_CONNECTOR` | `edm.recipes.datasets` | builds: latest recipe versions |
+| `DCPY_BUILDS_CONNECTOR` | `edm.publishing.builds` | builds |
+| `DCPY_DRAFTS_CONNECTOR` | `edm.publishing.drafts` | drafts |
+| `DCPY_PUBLISHED_CONNECTOR` | `edm.publishing.published` | published |
+| `DCPY_PLAN_CONNECTOR` | `edm.publishing.plan` | plans |
+
+When `AZ_S3_ENDPOINT`, `AZ_S3_ACCESS_KEY_ID` and `AZ_S3_SECRET_ACCESS_KEY` are set, the registry
+also registers an `az.*` copy of the storage connectors (`az.edm.recipes.datasets`,
+`az.edm.recipes.raw_datasets`, `az.edm.private`, `az.edm.publishing.builds|drafts|published|plan`)
+pointed at that endpoint (Azure Blob through the versitygw gateway). Buckets default to the `edm.*`
+names; `AZ_RECIPES_BUCKET`, `AZ_PUBLISHING_BUCKET`, `AZ_PRIVATE_BUCKET` override them. One process
+can then read DigitalOcean and write Azure, e.g. `DCPY_INGEST_DATASETS_CONNECTOR=az.edm.recipes.datasets`.
+Registration makes no network calls. A recipe's input `source` (default `edm.recipes.datasets`) is
+still a connector name of its own.
+
+Where in the buckets things go. All default to today's DigitalOcean layout:
+
+| Env var | Default | Effect |
+|---|---|---|
+| `RECIPES_BUCKET_ROOT_FOLDER` | empty | folder ingest's `datasets/` and `raw/` sit under in the recipes bucket (`ingest` on Azure: `edm-recipes/ingest/datasets/...`). Applies to `edm.recipes.*` and to `dcpy.connectors.edm.recipes` (builds' file-type, archive-date and version lookups). Slashes are stripped. The local build cache keeps `datasets/<id>/<version>/`. |
+| `AZ_RECIPES_BUCKET_ROOT_FOLDER` | unset: `RECIPES_BUCKET_ROOT_FOLDER` | the same for the `az.*` family; set it empty for the bucket root |
+| `PRIVATE_BUCKET` / `AZ_PRIVATE_BUCKET` | `edm-private` | bucket for `edm.private` / `az.edm.private`. Set to the recipes bucket (Azure has no `edm-private`) and private datasets share the recipes root folder, e.g. `edm-recipes/ingest/datasets/`. A separate private bucket keeps `datasets/` at its root. |
+| `INBOX_ROOT_FOLDER` | unset (off) | ingest templates with an `s3` source naming `bucket: edm-private` read `RECIPES_BUCKET/<INBOX_ROOT_FOLDER>/<key>` instead (`inbox` on Azure). The QA app's inbox upload follows it. Other buckets are untouched. |
+
+### Version catalog
+
+| Env var | Default | Effect |
+|---|---|---|
+| `DCPY_CATALOG_PG_URL` | unset (off) | Postgres URL of the version catalog (`dcpy.services.catalog`; the `de_apps` database on Azure, see `apps/docker/README.md`). Unset, nothing reads or writes it and everything lists the bucket, as before. |
+
+The catalog lives in `dcpy-services`, above `dcpy-lifecycle`: lifecycle and connectors don't know
+it exists. Callers wire it in:
+
+- **After an ingest**, ingest emits a `DatasetsArchived` event (`dcpy.lifecycle.events`), always.
+  dcpy-services registers a handler for it under the `dcpy.lifecycle.event_handlers` entry point
+  group; with `DCPY_CATALOG_PG_URL` set, it re-reads what was archived for those datasets and
+  updates their rows. So any process with dcpy-services installed and the catalog configured
+  writes through, Dagster or GitHub Actions. Without dcpy-services, or with the catalog unset,
+  nothing happens. A failing handler only logs a warning; the next full refresh catches up.
+- **Build planning** takes an optional `version_index` (`dcpy.lifecycle.builds.version_index`);
+  pass `dcpy.services.catalog.version_index.CatalogVersionIndex()` to resolve
+  `edm.recipes.datasets` inputs from one query. Without one, planning lists the bucket.
+- **A full refresh** of a datasets store: `catalog.ingest_versions.refresh_store`.
+
+The catalog is a cache of the stores, keyed by `(domain, store, key, version)`, where `store` is
+the connector's registry name. A reader falls back to the bucket for anything it can't answer
+exactly, including rows written under another bucket or `RECIPES_BUCKET_ROOT_FOLDER`, and for
+everything when the database is unreachable, so a stale catalog slows planning down without
+changing its lock file. Its schema is the numbered SQL files in
+`python/services/dcpy/services/catalog/migrations/`, shipped as package data and applied by
+`migrate`.
+
+```bash
+python -m dcpy.services catalog migrate
+python -m dcpy.services catalog show --domain ingest --key dcp_ct2010
+```
+
+The legacy `dcpy.connectors.edm.recipes` functions use the default `AWS_*` client, so they follow
+`RECIPES_BUCKET_ROOT_FOLDER`, never the `AZ_*` settings. The same goes for `INBOX_ROOT_FOLDER`,
+which uses `RECIPES_BUCKET`.
 
 ## Removed
 
