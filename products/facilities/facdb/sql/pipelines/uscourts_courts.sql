@@ -2,7 +2,7 @@ DROP TABLE IF EXISTS _uscourts_courts;
 SELECT
     uid,
     source,
-    buildingname AS facname,
+    coalesce(buildingname, officename) AS facname,
     parsed_hnum AS addressnum,
     parsed_sname AS streetname,
     buildingaddress AS address,
