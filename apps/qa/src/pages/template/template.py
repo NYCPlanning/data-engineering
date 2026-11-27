@@ -15,8 +15,8 @@ def template():
     product_key = sidebar.data_selection("db-template")
 
     csv_files = [
-        "templatedb.csv",
-        "source_data_versions.csv",
+        "dataset_files/templatedb.csv",
+        "attachments/source_data_versions.csv",
     ]
 
     st.markdown(
