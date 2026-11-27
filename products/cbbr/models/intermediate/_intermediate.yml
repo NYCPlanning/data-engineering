@@ -3,3 +3,18 @@ models:
     columns:
       - name: need
         tests: [ not_null ]
+  - name: libraries_nearest_park
+    description: "Nearest park (EPSG:2263 distance, in feet) for each library"
+    columns:
+      - name: nearest_park
+        tests:
+          - not_null
+      - name: nearest_park_distance_ft
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: libraries_nearest_park_unique_compound_key
+          combination_of_columns:
+            - library_name
+            - borough
