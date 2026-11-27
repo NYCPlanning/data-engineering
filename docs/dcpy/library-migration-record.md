@@ -24,9 +24,9 @@ With every dataset migrated, nothing outside `python/library/` needed the packag
 - `validate_ingest` and the `ingest_library_compare`, `ingest_library_run_single`, and
   `data_library_single` workflows only existed to run library, as did
   `apps/dcpy_integration_tests/library/`.
-- `usdot_ports` is still blocked on a token
+- `usdot_ports` was blocked on a token
   ([#1326](https://github.com/NYCPlanning/data-engineering/issues/1326)), so its library template
-  moved to `library_deprecated/`. Facilities reads its last library archive.
+  moved to `library_deprecated/`. Facilities now reads `usace_docks` instead.
 
 The `GDAL` pin moved to `dcpy-geospatial`, which is what imports `osgeo`. It reaches the same
 images as before, through `dcpy-lifecycle[geo]`.

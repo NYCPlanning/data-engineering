@@ -1,20 +1,20 @@
-DROP TABLE IF EXISTS _usdot_ports;
+DROP TABLE IF EXISTS _usace_docks;
 SELECT
     uid,
     source,
-    initcap(nav_unit_n) AS facname,
+    initcap(nav_unit_name) AS facname,
     NULL AS addressnum,
     NULL AS streetname,
     NULL AS address,
-    city_or_to AS city,
-    zipcode,
-    county_nam AS boro,
+    city_or_town AS city,
+    zipcode::integer::text AS zipcode,
+    county_name AS boro,
     NULL AS borocode,
     NULL AS bin,
     NULL AS bbl,
     (CASE
-        WHEN nav_unit_n ~* 'Ferry' THEN 'Ferry Landing'
-        WHEN nav_unit_n ~* 'Cruise' THEN 'Cruise Terminal'
+        WHEN nav_unit_name ~* 'Ferry' THEN 'Ferry Landing'
+        WHEN nav_unit_name ~* 'Cruise' THEN 'Cruise Terminal'
         ELSE 'Port or Marine Terminal'
     END) AS factype,
     'Ports and Ferry Landings' AS facsubgrp,
@@ -102,12 +102,12 @@ SELECT
     END) AS overabbrev,
     NULL AS capacity,
     NULL AS captype,
-    geometry AS wkb_geometry,
+    geom AS wkb_geometry,
     NULL AS geo_1b,
     NULL AS geo_bl,
     NULL AS geo_bn
-INTO _usdot_ports
-FROM usdot_ports
-WHERE nav_unit_n ~* '^port|terminal|ferry|cruise';
+INTO _usace_docks
+FROM usace_docks
+WHERE nav_unit_name ~* '^port|terminal|ferry|cruise';
 
-CALL append_to_facdb_base('_usdot_ports');
+CALL append_to_facdb_base('_usace_docks');
