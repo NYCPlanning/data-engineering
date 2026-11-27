@@ -108,6 +108,6 @@ SELECT
     NULL AS geo_bn
 INTO _usace_docks
 FROM usace_docks
-WHERE nav_unit_name ~* '^port|terminal|ferry|cruise';
+WHERE fac_type = 'Dock';
 
 CALL append_to_facdb_base('_usace_docks');
