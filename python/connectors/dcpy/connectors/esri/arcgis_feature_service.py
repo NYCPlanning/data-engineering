@@ -147,11 +147,25 @@ def query_layer(layer: FeatureServerLayer, params: dict) -> dict:
     return resp.json()
 
 
-def get_layer(layer: FeatureServerLayer, crs: int, chunk_size=100) -> dict:
+def get_layer(
+    layer: FeatureServerLayer,
+    crs: int,
+    chunk_size=100,
+    where: str = "1=1",
+    bbox: list[float] | None = None,
+) -> dict:
     """
-    Given FeatureServerLayer and desired crs, fetches entire layer as geojson (dict)
+    Given FeatureServerLayer and desired crs, fetches a layer as geojson (dict).
+    `where` and `bbox` ([xmin, ymin, xmax, ymax] in EPSG:4326) limit which features are fetched.
     """
-    params = {"where": "1=1", "outFields": "*", "outSr": crs, "f": "geojson"}
+    params: dict = {"where": where, "outFields": "*", "outSr": crs, "f": "geojson"}
+    if bbox:
+        params |= {
+            "geometry": ",".join(str(c) for c in bbox),
+            "geometryType": "esriGeometryEnvelope",
+            "inSR": 4326,
+            "spatialRel": "esriSpatialRelIntersects",
+        }
 
     # there is a limit of 2000 features on the server, unless we limit to objectIds only
     # so first, we get ids, then we chunk to get full layer
@@ -196,8 +210,14 @@ def get_layer(layer: FeatureServerLayer, crs: int, chunk_size=100) -> dict:
     return {"type": "FeatureCollection", "crs": crs, "features": features}
 
 
-def download_layer(layer: FeatureServerLayer, crs: str, path: Path) -> None:
-    geojson = get_layer(layer, crs=int(crs.strip("EPSG:")))
+def download_layer(
+    layer: FeatureServerLayer,
+    crs: str,
+    path: Path,
+    where: str = "1=1",
+    bbox: list[float] | None = None,
+) -> None:
+    geojson = get_layer(layer, crs=int(crs.strip("EPSG:")), where=where, bbox=bbox)
     with open(path, "w") as f:
         json.dump(geojson, f)
 
@@ -293,13 +313,17 @@ class ArcGISFeatureServiceConnector(Connector):
         server: Server,
         layer_name: str | None = None,
         layer_id: int | None = None,
+        where: str = "1=1",
+        bbox: list[float] | None = None,
         **kwargs,
     ) -> dict:
         layer = resolve_layer(
             FeatureServer(server=server, name=key), layer_name, layer_id
         )
         output = destination_path / f"{layer.layer_name}.geojson"
-        download_layer(layer, kwargs.get("crs", "EPSG:4326"), path=output)
+        download_layer(
+            layer, kwargs.get("crs", "EPSG:4326"), path=output, where=where, bbox=bbox
+        )
         return {"path": output}
 
     def pull(self, key: str, destination_path: Path, **kwargs) -> dict:
