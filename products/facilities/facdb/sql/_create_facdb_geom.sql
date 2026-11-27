@@ -39,8 +39,12 @@ geom_sources AS (
         facdb_base_geom.geom_1b,
         facdb_base_geom.geom_bl,
         facdb_base_geom.geom_bn,
-        ST_CENTROID(dcp_mappluto_wi.geom) AS geom_pluto,
-        -- a courtyard or L-shaped building's centroid can fall outside it
+        -- the centroid of an irregular lot or building (a courtyard, an L shape) can fall outside it
+        (CASE
+            WHEN ST_INTERSECTS(dcp_mappluto_wi.geom, ST_CENTROID(dcp_mappluto_wi.geom))
+                THEN ST_CENTROID(dcp_mappluto_wi.geom)
+            ELSE ST_POINTONSURFACE(dcp_mappluto_wi.geom)
+        END) AS geom_pluto,
         (CASE
             WHEN
                 ST_INTERSECTS(doitt_buildingfootprints.wkb_geometry, ST_CENTROID(doitt_buildingfootprints.wkb_geometry))
