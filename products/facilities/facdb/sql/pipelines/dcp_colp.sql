@@ -506,6 +506,7 @@ duplicate_offices AS (
 SELECT DISTINCT ON (facname, factype, facsubgrp, opabbrev, left(bbl, 6)) *
 INTO _dcp_colp
 FROM _dcp_colp_tmp
-WHERE uid NOT IN (SELECT uid FROM duplicate_offices);
+WHERE uid NOT IN (SELECT uid FROM duplicate_offices)
+ORDER BY facname, factype, facsubgrp, opabbrev, left(bbl, 6), uid;
 
 CALL append_to_facdb_base('_dcp_colp');
