@@ -3,8 +3,7 @@ DROP TABLE IF EXISTS facdb_duplicates;
 SELECT * INTO facdb_duplicates FROM facdb LIMIT 0; --noqa: AM09
 
 -- Within source deduplication -> same bin or geom, facname, factype, and datasource
--- TODO - these row_number without ORDER BY is not deterministic
---        this should be fixed, but with some attention to how we're ordering to ensure it's deterministic
+-- Keeps the lowest uid, like the steps below, so the same data keeps the same record every build
 DELETE FROM facdb
 WHERE uid IN (
     SELECT uid FROM (
@@ -17,6 +16,7 @@ WHERE uid IN (
                     datasource,
                     REGEXP_REPLACE(facname, '[^a-zA-Z0-9]+', '', 'g'),
                     opabbrev
+                ORDER BY uid
             ) AS rownum
         FROM facdb
     ) AS a
