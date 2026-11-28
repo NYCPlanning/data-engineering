@@ -11,7 +11,8 @@ final AS (
         sum(CASE WHEN place_type = 'green space' THEN 1 ELSE 0 END) AS green_space_count,
         sum(CASE WHEN place_type = 'historic landmark' THEN 1 ELSE 0 END) AS historic_landmark_count,
         sum(CASE WHEN bbl IS null THEN 1 ELSE 0 END) AS places_without_bbl,
-        sum(CASE WHEN wkb_geometry IS null THEN 1 ELSE 0 END) AS places_without_geometry
+        sum(CASE WHEN wkb_geometry IS null THEN 1 ELSE 0 END) AS places_without_geometry,
+        sum(CASE WHEN place_type = 'restroom' THEN 1 ELSE 0 END) AS restroom_count
     FROM templatedb
     GROUP BY borough
 )

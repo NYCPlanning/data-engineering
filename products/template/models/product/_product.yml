@@ -31,10 +31,15 @@ models:
           - not_null:
               where: bbl is not null
               severity: warn  # Allow null geometries, just warn about them
+      - name: nearest_park
+        tests:
+          - not_null:
+              where: place_type = 'library'
     tests:
       - dbt_utils.unique_combination_of_columns:
           name: templatedb_unique_compound_key
           combination_of_columns:
             - place_name
+            - place_type
             - borough
             - bbl

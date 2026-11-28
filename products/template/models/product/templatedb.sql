@@ -2,11 +2,23 @@
 
 -- TODO determine the CD of each place
 WITH
-libraries AS (SELECT * FROM {{ ref('libraries') }}),
+libraries AS (
+    SELECT
+        libraries.*,
+        nearest_park.nearest_park,
+        nearest_park.nearest_park_distance_ft
+    FROM {{ ref('libraries') }} AS libraries
+    LEFT JOIN {{ ref('libraries_nearest_park') }} AS nearest_park
+        ON
+            libraries.library_name = nearest_park.library_name
+            AND libraries.borough = nearest_park.borough
+),
 
 green_spaces AS (SELECT * FROM {{ ref('green_spaces') }}),
 
 historic_landmarks AS (SELECT * FROM {{ ref('historic_landmarks') }}),
+
+restrooms AS (SELECT * FROM {{ ref('restrooms') }}),
 
 all_records AS (
     SELECT
@@ -14,15 +26,20 @@ all_records AS (
         'library' AS place_type,
         borough,
         NULL AS bbl,
+        address,
+        nearest_park,
+        nearest_park_distance_ft,
         wkb_geometry
-    FROM
-        libraries
+    FROM libraries
     UNION ALL
     SELECT
         space_name AS place_name,
         'green space' AS place_type,
         borough,
         NULL AS bbl,
+        NULL AS address,
+        NULL AS nearest_park,
+        NULL AS nearest_park_distance_ft,
         wkb_geometry
     FROM green_spaces
     UNION ALL
@@ -31,8 +48,22 @@ all_records AS (
         'historic landmark' AS place_type,
         borough,
         bbl,
+        NULL AS address,
+        NULL AS nearest_park,
+        NULL AS nearest_park_distance_ft,
         wkb_geometry
     FROM historic_landmarks
+    UNION ALL
+    SELECT
+        restroom_name AS place_name,
+        'restroom' AS place_type,
+        borough,
+        NULL AS bbl,
+        NULL AS address,
+        NULL AS nearest_park,
+        NULL AS nearest_park_distance_ft,
+        wkb_geometry
+    FROM restrooms
 ),
 
 standardized_geometry_types AS (
@@ -41,6 +72,9 @@ standardized_geometry_types AS (
         place_type,
         borough,
         bbl,
+        address,
+        nearest_park,
+        nearest_park_distance_ft,
         CASE
             WHEN ST_GEOMETRYTYPE(wkb_geometry) = 'ST_Polygon' THEN ST_MULTI(wkb_geometry)
             WHEN ST_ISEMPTY(wkb_geometry) THEN NULL

@@ -49,3 +49,24 @@ models:
             - landmark_name
             - bbl
             - wkb_geometry
+
+  - name: restrooms
+    description: "Operational public restrooms in NYC, with borough"
+    columns:
+      - name: restroom_name
+        tests:
+          - not_null
+      - name: borough
+        tests:
+          - not_null
+          - accepted_values:
+              values: ['Manhattan', 'Bronx', 'Brooklyn', 'Queens', 'Staten Island']
+      - name: wkb_geometry
+        tests:
+          - not_null
+    tests:
+      - dbt_utils.unique_combination_of_columns:
+          name: restrooms_unique_compound_key
+          combination_of_columns:
+            - restroom_name
+            - borough

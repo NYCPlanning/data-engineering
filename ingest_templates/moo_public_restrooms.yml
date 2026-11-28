@@ -1,0 +1,36 @@
+id: moo_public_restrooms
+
+attributes:
+  name: Public Restrooms
+  description: |
+    Public restrooms in New York City: name, location type, operator, status,
+    seasonality, hours, ADA accessibility, stall types, changing stations, and access notes.
+    Availability may change; the dataset may not reflect real-time conditions.
+  url: https://data.cityofnewyork.us/City-Government/Public-Restrooms/i7jb-7jku
+
+ingestion:
+  source:
+    type: socrata
+    org: nyc
+    uid: i7jb-7jku
+    format: geojson
+  file_format:
+    type: geojson
+
+columns:
+  - id: facility_name
+    data_type: text
+  - id: location_type
+    data_type: text
+  - id: operator
+    data_type: text
+  - id: status
+    data_type: text
+  - id: open
+    data_type: text
+  - id: hours_of_operation
+    data_type: text
+  - id: accessibility
+    data_type: text
+  - id: wkb_geometry
+    data_type: geometry
